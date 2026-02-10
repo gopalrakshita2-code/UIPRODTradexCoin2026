@@ -1,16 +1,14 @@
 export const environment = {
-    production: true,
-    backendUrl: 'https://prodtradexcoin2026.onrender.com/',
-   //  web app's Firebase configuration
-   firebase : {
-  apiKey: "AIzaSyAjXuHcuYj2JrUA5G4JOP_1Rwr4b5YGACk",
-  authDomain: "tradexcoin2026.firebaseapp.com",
-  projectId: "tradexcoin2026",
-  storageBucket: "tradexcoin2026.firebasestorage.app",
-  messagingSenderId: "265092987440",
-  appId: "1:265092987440:web:47594ae7427b8db87a0bf5",
-  measurementId: "G-8J69RQJTV1"
-  }
-  };
+  production: true,
+  backendUrl: (window as any)['NG_APP_BACKEND_URL'],
 
-  
+  firebase: {
+    apiKey: (window as any)['NG_APP_FIREBASE_API_KEY'],
+    authDomain: (window as any)['NG_APP_FIREBASE_AUTH_DOMAIN'],
+    projectId: (window as any)['NG_APP_FIREBASE_PROJECT_ID'],
+    storageBucket: (window as any)['NG_APP_FIREBASE_STORAGE_BUCKET'],
+    messagingSenderId: (window as any)['NG_APP_FIREBASE_MESSAGING_SENDER_ID'],
+    appId: (window as any)['NG_APP_FIREBASE_APP_ID'],
+    measurementId: (window as any)['NG_APP_FIREBASE_MEASUREMENT_ID']
+  }
+};
