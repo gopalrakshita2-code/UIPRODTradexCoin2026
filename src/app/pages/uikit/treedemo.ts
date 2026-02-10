@@ -1,75 +1,55 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { TreeNode } from 'primeng/api';
-import { TreeModule } from 'primeng/tree';
-import { FormsModule } from '@angular/forms';
-import { TreeTableModule } from 'primeng/treetable';
 import { CommonModule } from '@angular/common';
-import { NodeService } from '../service/node.service';
+import { ButtonModule } from 'primeng/button';
+
+interface Event {
+    id: number;
+    title: string;
+    date: string;
+    time: string;
+    location: string;
+    description: string;
+    category: string;
+}
 
 @Component({
     selector: 'app-tree-demo',
     standalone: true,
-    imports: [CommonModule, FormsModule, TreeModule, TreeTableModule],
-    template: `
-        <div class="card">
-            <div class="font-semibold text-xl">Tree</div>
-            <p-tree [value]="treeValue" selectionMode="checkbox" [(selection)]="selectedTreeValue"></p-tree>
-        </div>
-
-        <div class="card">
-            <div class="font-semibold text-xl mb-4">TreeTable</div>
-            <p-treetable [value]="treeTableValue" [columns]="cols" selectionMode="checkbox" [(selectionKeys)]="selectedTreeTableValue" dataKey="key" [scrollable]="true" [tableStyle]="{ 'min-width': '50rem' }">
-                <ng-template #header let-columns>
-                    <tr>
-                        <th *ngFor="let col of columns">
-                            {{ col.header }}
-                        </th>
-                    </tr>
-                </ng-template>
-                <ng-template #body let-rowNode let-rowData="rowData" let-columns="columns">
-                    <tr [ttRow]="rowNode" [ttSelectableRow]="rowNode">
-                        <td *ngFor="let col of columns; let i = index">
-                            <span class="flex items-center gap-2">
-                                <p-treeTableToggler [rowNode]="rowNode" *ngIf="i === 0" />
-                                <p-treeTableCheckbox [value]="rowNode" *ngIf="i === 0" />
-                                {{ rowData[col.field] }}
-                            </span>
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-treetable>
-        </div>
-    `,
-    providers: [NodeService]
+    imports: [CommonModule,ButtonModule],
+    templateUrl: './treedemo.html',
 })
 export class TreeDemo implements OnInit {
-    treeValue: TreeNode[] = [];
 
-    treeTableValue: TreeNode[] = [];
-
-    selectedTreeValue: TreeNode[] = [];
-
-    selectedTreeTableValue = {};
-
-    cols: any[] = [];
-
-    nodeService = inject(NodeService);
-
+    events: Event[] = [
+        {
+            id: 1,
+            title: 'Crypto Trading Summit 2024',
+            date: 'March 15, 2024',
+            time: '10:00 AM - 6:00 PM',
+            location: 'New York Convention Center',
+            description: 'Join industry leaders for insights on cryptocurrency trading, blockchain technology, and market trends.',
+            category: 'Conference'
+        },
+        {
+            id: 2,
+            title: 'Blockchain Developer Workshop',
+            date: 'March 22, 2024',
+            time: '2:00 PM - 5:00 PM',
+            location: 'San Francisco Tech Hub',
+            description: 'Hands-on workshop for developers to learn smart contract development and DeFi protocols.',
+            category: 'Workshop'
+        },
+        {
+            id: 3,
+            title: 'NFT Art Gallery Opening',
+            date: 'March 30, 2024',
+            time: '7:00 PM - 10:00 PM',
+            location: 'Los Angeles Art District',
+            description: 'Exclusive showcase of digital art and NFT collections from renowned artists and creators.',
+            category: 'Exhibition'
+        }
+    ];
     ngOnInit() {
-        this.nodeService.getFiles().then((files) => (this.treeValue = files));
-        this.nodeService.getTreeTableNodes().then((files: any) => (this.treeTableValue = files));
-
-        this.cols = [
-            { field: 'name', header: 'Name' },
-            { field: 'size', header: 'Size' },
-            { field: 'type', header: 'Type' }
-        ];
-
-        this.selectedTreeTableValue = {
-            '0-0': {
-                partialChecked: false,
-                checked: true
-            }
-        };
+        
     }
 }

@@ -1,0 +1,26 @@
+<p-fluid>
+    <div class="flex mt-8">
+        <div class="card flex flex-col gap-6 w-full">
+            <div class="font-semibold text-xl">Submit a Support Request</div>
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="flex flex-wrap gap-2 w-full">
+                    <label for="fullName">Full Name</label>
+                    <input pInputText id="fullName" type="text" [(ngModel)]="fullName" placeholder="Enter your full name" required />
+                </div>
+                <div class="flex flex-wrap gap-2 w-full">
+                    <label for="email">Email Address</label>
+                    <input pInputText id="email" type="text" [(ngModel)]="email" placeholder="Enter your email address" required />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap">
+                <label for="message">How can we help?</label>
+                <textarea pTextarea id="message" rows="4" [(ngModel)]="message"  placeholder="Enter your message" required></textarea>
+            </div>
+            <div class="flex flex-col md:flex-row gap-6">
+                <p-button (click)="showSuccessViaToast()" [disabled]="!isFormValid()" label="Submit" severity="success" />
+                <p-toast />   
+            </div>
+        </div>
+    </div>
+</p-fluid>

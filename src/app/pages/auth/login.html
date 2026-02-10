@@ -1,0 +1,77 @@
+        <app-floating-configurator />
+        <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen w-full overflow-hidden px-4 py-4">
+            <div class="flex flex-col items-center justify-center w-full max-w-md">
+                <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
+                    <div class="w-full bg-surface-0 dark:bg-surface-900 py-8 sm:py-12 md:py-20 px-4 sm:px-8 md:px-20" style="border-radius: 53px">
+                        <div class="text-center mb-6 sm:mb-8">
+                            <img src="assets/demo/images/logo/TradexCoinLogo.png" alt="Logo" class="mb-4 sm:mb-8 w-16 h-16 sm:w-20 sm:h-20 object-contain shrink-0 mx-auto">
+                                    <div class="text-surface-900 dark:text-surface-0 text-2xl sm:text-3xl font-medium mb-2 sm:mb-4">TradexCoin</div>
+                                    <span class="text-muted-color font-medium text-sm sm:text-base">Smart Trading Platform</span>
+                                </div>
+        
+                                <div>
+                                    <label for="email1" class="block text-surface-900 dark:text-surface-0 text-base sm:text-xl font-medium mb-2">Email</label>
+                                    <input pInputText id="email1" type="email" placeholder="Email address" class="w-full mb-6 sm:mb-8" [(ngModel)]="email" />
+        
+                                    <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-base sm:text-xl mb-2">Password</label>
+                                    <p-password id="password1" [(ngModel)]="password" placeholder="Password" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false"></p-password>
+        
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-2 mb-6 sm:mb-8 gap-4 sm:gap-8">
+                                        <div class="flex items-center">
+                                            <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
+                                            <label for="rememberme1" class="text-sm sm:text-base">Remember me</label>
+                                        </div>
+                                        <span class="font-medium no-underline text-primary text-sm sm:text-base cursor-pointer">Forgot password?</span>
+                                    </div>
+                                    
+                                    <!-- Buttons Grid - Uniform Size -->
+                                    <div class="grid grid-cols-2 gap-3 mb-3">
+                                        <p-button 
+                                            label="Login" 
+                                            styleClass="w-full h-12" 
+                                            (onClick)="onLogin()" 
+                                            [loading]="isLoading"
+                                            severity="primary">
+                                        </p-button>
+                                        <p-button 
+                                            label="Sign Up" 
+                                            styleClass="w-full h-12" 
+                                            routerLink="/auth/register" 
+                                            [outlined]="true"
+                                            severity="info">
+                                        </p-button>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <button 
+                                            pButton 
+                                            pRipple 
+                                            severity="help" 
+                                            label="Google" 
+                                            (click)="onGoogleSignIn()" 
+                                            styleClass="w-full h-12" 
+                                            icon="pi pi-google">
+                                        </button>                               
+                                        <p-button 
+                                            label="Back" 
+                                            routerLink="/" 
+                                            severity="success" 
+                                            styleClass="w-full h-12"
+                                            [outlined]="true">
+                                        </p-button>                   
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+
+        <p-dialog [(visible)]="errorDialog" [style]="{ width: '90vw', maxWidth: '450px' }" header="Login Error" [modal]="true" [closable]="true">
+            <div class="flex flex-col gap-4">
+                <i class="pi pi-exclamation-triangle text-4xl sm:text-5xl text-red-500 mx-auto"></i>
+                <p class="text-center text-base sm:text-lg">{{ errorMessage }}</p>
+            </div>
+            <ng-template #footer>
+                <p-button label="OK" (onClick)="closeErrorDialog()" styleClass="w-full"></p-button>
+            </ng-template>
+        </p-dialog>

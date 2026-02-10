@@ -1,0 +1,32 @@
+<p-fluid>
+    <div class="flex mb-6">
+        <div class="card flex flex-col gap-6 w-full">
+
+            <div class="font-semibold text-xl">Deposit</div>
+            <p-select [options]="CoinsList" [(ngModel)]="selectedCoin" placeholder="Select Coin" optionLabel="name" [filter]="true" [showClear]="true"(ngModelChange)="onCoinChange($event)">
+                <ng-template #selectedItem let-coin>
+                    <div class="flex items-center gap-2">
+                        <img [src]="coin.image" [alt]="coin.name" style="width: 24px; height: 24px" />
+                        <div>{{ coin.code.toUpperCase() }}</div>
+                    </div>
+                </ng-template>
+                <ng-template #item let-coin>
+                    <div class="flex items-center gap-2">
+                        <img [src]="coin.image" [alt]="coin.name" style="width: 24px; height: 24px" />
+                        <div>{{ coin.code.toUpperCase() }}</div>
+                    </div>
+                </ng-template>
+            </p-select>
+        </div>
+    </div>
+</p-fluid>
+
+<div class="card">
+    <div class="font-semibold text-xl mb-4">Image</div>
+    <p-image [src]="selectedCoinImage" alt="Image" width="250" />
+    <div class="mb-2 mt-2 font-medium break-words overflow-wrap-anywhere">{{selectedCoinAddress}}</div> 
+    <p-button label="Copy" severity="help" (onClick)="copyToClipboard(selectedCoinAddress)" />
+    <p-toast />
+    <div class="mt-4">Note: Only send ETH to this deposit address. the coins will be automatically deposited and converted to USDC afer nerwork confirmation.</div>
+</div>
+

@@ -1,0 +1,21 @@
+<p-fluid>
+    <div class="flex mt-8">
+        <div class="card flex flex-col gap-6 w-full">
+            <div class="font-semibold text-xl">Wihtdraw Funds</div>
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="flex flex-wrap gap-2 w-full">
+                    <label for="EnterAmountUSDT">Enter Amount(USDT)</label>
+                    <input pInputText id="EnterAmountUSDT" type="number" [(ngModel)]="amount" placeholder="Enter amount" required />
+                </div>
+                <div class="flex flex-wrap gap-2 w-full">
+                    <label for="EnterWalletAddress">USDT (ERC20) Wallet Address</label>
+                    <input pInputText id="EnterWalletAddress" type="text" placeholder="Enter USDT (ERC20) wallet address" [(ngModel)]="walletAddress" required />
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row gap-6">
+                <p-button (click)="showSuccessViaToast()" [disabled]="!isFormValid()" label="Withdraw" severity="success" />
+                <p-toast />   
+            </div>
+        </div>
+    </div>
+</p-fluid>
