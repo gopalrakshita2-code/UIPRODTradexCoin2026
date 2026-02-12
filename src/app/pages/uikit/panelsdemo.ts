@@ -1,21 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AccordionModule } from 'primeng/accordion';
-import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { DividerModule } from 'primeng/divider';
-import { FieldsetModule } from 'primeng/fieldset';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
-import { MenuModule } from 'primeng/menu';
-import { PanelModule } from 'primeng/panel';
 import { RippleModule } from 'primeng/ripple';
-import { SplitButtonModule } from 'primeng/splitbutton';
-import { SplitterModule } from 'primeng/splitter';
-import { TabsModule } from 'primeng/tabs';
-import { ToolbarModule } from 'primeng/toolbar';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { DialogModule } from 'primeng/dialog';
+import { Router, RouterModule } from '@angular/router';
+
+declare const TradingView: any;
 
 @Component({
     selector: 'app-panels-demo',
@@ -23,213 +16,273 @@ import { ToolbarModule } from 'primeng/toolbar';
     imports: [
         CommonModule,
         FormsModule,
-        ToolbarModule,
         ButtonModule,
         RippleModule,
-        SplitButtonModule,
-        AccordionModule,
-        FieldsetModule,
-        MenuModule,
         InputTextModule,
-        DividerModule,
-        SplitterModule,
-        PanelModule,
-        TabsModule,
-        IconFieldModule,
-        InputIconModule
+        InputNumberModule,
+        DialogModule,
+        RouterModule
     ],
-    template: `
-        <div class="flex flex-col">
-            <div class="card">
-                <div class="font-semibold text-xl mb-4">Toolbar</div>
-                <p-toolbar>
-                    <ng-template #start>
-                        <p-button icon="pi pi-plus" class="mr-2" severity="secondary" text />
-                        <p-button icon="pi pi-print" class="mr-2" severity="secondary" text />
-                        <p-button icon="pi pi-upload" severity="secondary" text />
-                    </ng-template>
-
-                    <ng-template #center>
-                        <p-iconfield>
-                            <p-inputicon>
-                                <i class="pi pi-search"></i>
-                            </p-inputicon>
-                            <input pInputText placeholder="Search" />
-                        </p-iconfield>
-                    </ng-template>
-
-                    <ng-template #end><p-splitbutton label="Save" [model]="items"></p-splitbutton></ng-template>
-                </p-toolbar>
-            </div>
-
-            <div class="flex flex-col md:flex-row gap-8">
-                <div class="md:w-1/2">
-                    <div class="card">
-                        <div class="font-semibold text-xl mb-4">Accordion</div>
-                        <p-accordion value="0">
-                            <p-accordion-panel value="0">
-                                <p-accordion-header>Header I</p-accordion-header>
-                                <p-accordion-content>
-                                    <p class="m-0">
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-                                        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-                                        mollit anim id est laborum.
-                                    </p>
-                                </p-accordion-content>
-                            </p-accordion-panel>
-
-                            <p-accordion-panel value="1">
-                                <p-accordion-header>Header II</p-accordion-header>
-                                <p-accordion-content>
-                                    <p class="m-0">
-                                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt
-                                        explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non
-                                        numquam eius modi.
-                                    </p>
-                                </p-accordion-content>
-                            </p-accordion-panel>
-
-                            <p-accordion-panel value="2">
-                                <p-accordion-header>Header III</p-accordion-header>
-                                <p-accordion-content>
-                                    <p class="m-0">
-                                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt
-                                        explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non
-                                        numquam eius modi.
-                                    </p>
-                                </p-accordion-content>
-                            </p-accordion-panel>
-                        </p-accordion>
-                    </div>
-                    <div class="card">
-                        <div class="font-semibold text-xl mb-4">Tabs</div>
-                        <p-tabs value="0">
-                            <p-tablist>
-                                <p-tab value="0">Header I</p-tab>
-                                <p-tab value="1">Header II</p-tab>
-                                <p-tab value="2">Header III</p-tab>
-                            </p-tablist>
-                            <p-tabpanels>
-                                <p-tabpanel value="0">
-                                    <p class="m-0">
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-                                        ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-                                        mollit anim id est laborum.
-                                    </p>
-                                </p-tabpanel>
-                                <p-tabpanel value="1">
-                                    <p class="m-0">
-                                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt
-                                        explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non
-                                        numquam eius modi.
-                                    </p>
-                                </p-tabpanel>
-                                <p-tabpanel value="2">
-                                    <p class="m-0">
-                                        At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident,
-                                        similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio
-                                        cumque nihil impedit quo minus.
-                                    </p>
-                                </p-tabpanel>
-                            </p-tabpanels>
-                        </p-tabs>
-                    </div>
-                </div>
-                <div class="md:w-1/2 mt-6 md:mt-0">
-                    <div class="card">
-                        <div class="font-semibold text-xl mb-4">Panel</div>
-                        <p-panel header="Header" [toggleable]="true">
-                            <p class="m-0">
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-                                commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
-                                id est laborum.
-                            </p>
-                        </p-panel>
-                    </div>
-                    <div class="card">
-                        <div class="font-semibold text-xl mb-4">Fieldset</div>
-                        <p-fieldset legend="Legend" [toggleable]="true">
-                            <p class="m-0">
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-                                commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
-                                id est laborum.
-                            </p>
-                        </p-fieldset>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mt-8">
-                <div class="font-semibold text-xl mb-4">Divider</div>
-                <div class="flex flex-col md:flex-row">
-                    <div class="w-full md:w-5/12 flex flex-col items-center justify-center gap-3 py-5">
-                        <div class="flex flex-col gap-2">
-                            <label for="username">Username</label>
-                            <input pInputText id="username" type="text" />
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <label for="password">Password</label>
-                            <input pInputText id="password" type="password" />
-                        </div>
-                        <div class="flex">
-                            <p-button label="Login" icon="pi pi-user" class="w-full max-w-[17.35rem] mx-auto"></p-button>
-                        </div>
-                    </div>
-                    <div class="w-full md:w-2/12">
-                        <p-divider layout="vertical" class="hidden! md:flex!"><b>OR</b></p-divider>
-                        <p-divider layout="horizontal" class="flex! md:hidden!" align="center"><b>OR</b></p-divider>
-                    </div>
-                    <div class="w-full md:w-5/12 flex items-center justify-center py-5">
-                        <p-button label="Sign Up" icon="pi pi-user-plus" severity="success" class="w-full" styleClass="w-full max-w-[17.35rem] mx-auto"></p-button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="font-semibold text-xl mb-4">Splitter</div>
-                <p-splitter [style]="{ height: '300px' }" [panelSizes]="[20, 80]" [minSizes]="[10, 0]" styleClass="mb-8">
-                    <ng-template #panel>
-                        <div class="col flex items-center justify-center">Panel 1</div>
-                    </ng-template>
-                    <ng-template #panel>
-                        <p-splitter layout="vertical" [panelSizes]="[50, 50]">
-                            <ng-template #panel>
-                                <div style="grow: 1;" class="flex items-center justify-center">Panel 2</div>
-                            </ng-template>
-                            <ng-template #panel>
-                                <p-splitter [panelSizes]="[20, 80]">
-                                    <ng-template #panel>
-                                        <div class="col flex items-center justify-center">Panel 3</div>
-                                    </ng-template>
-                                    <ng-template #panel>
-                                        <div class="col flex items-center justify-center">Panel 4</div>
-                                    </ng-template>
-                                </p-splitter>
-                            </ng-template>
-                        </p-splitter>
-                    </ng-template>
-                </p-splitter>
-            </div>
-        </div>
-    `
+    templateUrl: './panelsdemo.html'
 })
-export class PanelsDemo {
-    items: MenuItem[] = [
-        {
-            label: 'Save',
-            icon: 'pi pi-check'
-        },
-        {
-            label: 'Update',
-            icon: 'pi pi-upload'
-        },
-        {
-            label: 'Delete',
-            icon: 'pi pi-trash'
-        },
-        {
-            label: 'Home Page',
-            icon: 'pi pi-home'
-        }
+export class PanelsDemo implements AfterViewInit, OnDestroy {
+    @Input() symbol: string = 'BINANCE:BTCUSDT'; // Default to Bitcoin
+    @Input() interval: string = 'D'; // D, W, M, 1, 5, 15, 30, 60, 240
+    @Input() theme: 'light' | 'dark' = 'dark';
+    @Input() height: number = 300;
+    @Input() title: string = 'Trading Chart';
+
+    containerId: string = `tradingview_${Math.random().toString(36).substring(2, 11)}`;
+    private scriptLoaded: boolean = false;
+    private widgetInstance: any = null;
+    
+    currentSymbol: string = this.symbol;
+    currentInterval: string = this.interval;
+    
+    // Card selection (default to first card - 60 seconds)
+    selectedCardIndex: number = 0;
+    
+    // Input fields
+    amount: string = '';
+    expectedReturn: string = '$0.00';
+    amountError: string = '';
+    
+    // Dialog
+    showSuccessDialog: boolean = false;
+    
+    coins = [
+        { label: 'BTC', value: 'BINANCE:BTCUSDT' },
+        { label: 'ETH', value: 'BINANCE:ETHUSDT' },
+        { label: 'LTC', value: 'BINANCE:LTCUSDT' },
+        { label: 'SUI', value: 'BINANCE:SUIUSDT' },
+        { label: 'BNB', value: 'BINANCE:BNBUSDT' },
+        { label: 'SOL', value: 'BINANCE:SOLUSDT' },
+        { label: 'XRP', value: 'BINANCE:XRPUSDT' },
+        { label: 'DOGE', value: 'BINANCE:DOGEUSDT' }
     ];
+    
+    returnCards = [
+        { time: '60 Seconds', return: '10.00%', min: 1000, max: 20000, returnPercent: 10 },
+        { time: '90 Seconds', return: '20.00%', min: 20000, max: 60000, returnPercent: 20 },
+        { time: '120 Seconds', return: '30.00%', min: 60000, max: 120000, returnPercent: 30 },
+        { time: '180 Seconds', return: '40.00%', min: 120000, max: 180000, returnPercent: 40 }
+    ];
+
+    constructor(private router: Router) {}
+
+    ngAfterViewInit(): void {
+        this.currentSymbol = this.symbol;
+        this.currentInterval = this.interval;
+        this.loadTradingViewScript();
+    }
+
+    getCurrentBalance(): number {
+        const storedUser = localStorage.getItem('user');
+        if (!storedUser) {
+            return 0;
+        }
+
+        try {
+            const parsed = JSON.parse(storedUser);
+            const user = parsed?.data?.user ?? parsed?.user ?? parsed;
+            return Number(user?.balance ?? 0);
+        } catch {
+            return 0;
+        }
+    }
+
+    selectCard(index: number): void {
+        this.selectedCardIndex = index;
+        this.amount = '';
+        this.expectedReturn = '$0.00';
+        this.amountError = '';
+    }
+
+    onAmountChange(): void {
+        this.amountError = '';
+        
+        if (!this.amount || this.amount.trim() === '') {
+            this.expectedReturn = '$0.00';
+            return;
+        }
+
+        // Remove any non-numeric characters except decimal point
+        const numericValue = this.amount.replace(/[^0-9.]/g, '');
+        
+        if (!numericValue || isNaN(parseFloat(numericValue))) {
+            this.expectedReturn = '$0.00';
+            return;
+        }
+
+        const amountNum = parseFloat(numericValue);
+        const selectedCard = this.returnCards[this.selectedCardIndex];
+        
+        // Validate amount range
+        if (amountNum < selectedCard.min || amountNum > selectedCard.max) {
+            this.amountError = `Amount must be between ${selectedCard.min.toLocaleString()} and ${selectedCard.max.toLocaleString()}`;
+            this.expectedReturn = '$0.00';
+            return;
+        }
+
+        // Calculate expected return: amount / 10 = dollar amount
+        const dollarAmount = amountNum / 10;
+        
+        // Calculate return based on percentage
+        const returnAmount = (dollarAmount * selectedCard.returnPercent) / 100;
+        const totalReturn = dollarAmount + returnAmount;
+        
+        this.expectedReturn = `$${totalReturn.toFixed(2)}`;
+        this.amountError = '';
+    }
+
+    checkBalanceAndTrade(direction: 'up' | 'down'): void {
+        const currentBalance = this.getCurrentBalance();
+        
+        // If no balance, clear both fields
+        if (!currentBalance || currentBalance === 0) {
+            this.amount = '';
+            this.expectedReturn = '';
+            this.amountError = 'No balance available';
+            return;
+        }
+
+        if (!this.amount || this.amount.trim() === '') {
+            this.amountError = 'Please enter an amount';
+            return;
+        }
+
+        // Remove any non-numeric characters except decimal point
+        const numericValue = this.amount.replace(/[^0-9.]/g, '');
+        
+        if (!numericValue || isNaN(parseFloat(numericValue))) {
+            this.amountError = 'Please enter a valid amount';
+            return;
+        }
+
+        const amountNum = parseFloat(numericValue);
+        const selectedCard = this.returnCards[this.selectedCardIndex];
+
+        // Validate amount is within the selected card's range
+        if (amountNum < selectedCard.min || amountNum > selectedCard.max) {
+            this.amountError = `Amount must be between ${selectedCard.min.toLocaleString()} and ${selectedCard.max.toLocaleString()}`;
+            return;
+        }
+
+        // Check if balance is sufficient for the trade
+        // Balance should be >= minimum required for the card AND >= entered amount
+        if (currentBalance >= selectedCard.min && currentBalance >= amountNum) {
+            // Show success dialog
+            this.showSuccessDialog = true;
+            this.amountError = '';
+        } else if (currentBalance < selectedCard.min) {
+            this.amountError = `Insufficient balance. Minimum required: ${selectedCard.min.toLocaleString()}, Your balance: ${currentBalance.toLocaleString()}`;
+        } else if (currentBalance < amountNum) {
+            this.amountError = `Insufficient balance. Required: ${amountNum.toLocaleString()}, Your balance: ${currentBalance.toLocaleString()}`;
+        }
+    }
+
+
+    onUpClick(): void {
+        this.checkBalanceAndTrade('up');
+
+    }
+
+    onDownClick(): void {
+        this.checkBalanceAndTrade('down');
+    }
+
+    closeSuccessDialog(): void {
+        this.showSuccessDialog = false;
+        this.router.navigate(['/app/dashboard']);
+        // Clear both fields after successful trade
+        this.amount = '';
+        this.expectedReturn = '';
+        this.amountError = '';
+    }
+
+    changeSymbol(symbol: string): void {
+        if (this.currentSymbol === symbol) {
+            return; // Already selected
+        }
+        
+        this.currentSymbol = symbol;
+        this.initWidget();
+    }
+
+    changeInterval(interval: string): void {
+        if (this.currentInterval === interval) {
+            return; // Already selected
+        }
+        
+        this.currentInterval = interval;
+        this.initWidget();
+    }
+
+    private loadTradingViewScript(): void {
+        // Check if script already exists
+        if (document.getElementById('tradingview-widget-script')) {
+            this.initWidget();
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.id = 'tradingview-widget-script';
+        script.src = 'https://s3.tradingview.com/tv.js';
+        script.async = true;
+        script.onload = () => {
+            this.scriptLoaded = true;
+            this.initWidget();
+        };
+        script.onerror = () => {
+            console.error('Failed to load TradingView script');
+        };
+
+        document.head.appendChild(script);
+    }
+
+    private initWidget(): void {
+        if (typeof TradingView === 'undefined') {
+            console.error('TradingView is not loaded');
+            return;
+        }
+
+        // Wait a bit for the container to be ready
+        setTimeout(() => {
+            const container = document.getElementById(this.containerId);
+            if (!container) {
+                console.error('Container not found:', this.containerId);
+                return;
+            }
+
+            // Clear any existing widget
+            container.innerHTML = '';
+
+            this.widgetInstance = new TradingView.widget({
+                container_id: this.containerId,
+                symbol: this.currentSymbol,
+                interval: this.currentInterval,
+                timezone: 'Etc/UTC',
+                theme: this.theme,
+                style: '1',
+                locale: 'en',
+                toolbar_bg: '#f1f3f6',
+                enable_publishing: false,
+                hide_top_toolbar: false,
+                save_image: false,
+                height: this.height,
+                width: '100%',
+                autosize: true
+            });
+        }, 100);
+    }
+
+    ngOnDestroy(): void {
+        // Clean up widget instance if needed
+        if (this.widgetInstance) {
+            const container = document.getElementById(this.containerId);
+            if (container) {
+                container.innerHTML = '';
+            }
+        }
+    }
 }

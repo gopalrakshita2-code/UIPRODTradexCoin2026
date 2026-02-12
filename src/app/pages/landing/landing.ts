@@ -10,6 +10,7 @@ import { FeaturesWidget } from './components/featureswidget';
 import { HighlightsWidget } from './components/highlightswidget';
 import { PricingWidget } from './components/pricingwidget';
 import { FooterWidget } from './components/footerwidget';
+import {  DashboardData } from '../service/dashboard-data';
 
 @Component({
     selector: 'app-landing',
@@ -19,10 +20,13 @@ import { FooterWidget } from './components/footerwidget';
 })
 export class Landing implements OnInit, OnDestroy {
     private clickHandler?: (event: MouseEvent) => void;
+    // dashboardDatas: DashboardCoin[] = [];
+   
     constructor() {}
 
     ngOnInit() {
-      
+
+  
         // Add global click handler for anchor links with hash fragments
         this.clickHandler = (event: MouseEvent) => {
             const target = event.target as HTMLElement;
@@ -39,9 +43,9 @@ export class Landing implements OnInit, OnDestroy {
                 }
             }
         };
-
         document.addEventListener('click', this.clickHandler);
     }
+
 
     ngOnDestroy() {
         if (this.clickHandler) {

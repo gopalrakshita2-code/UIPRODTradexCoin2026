@@ -3,10 +3,9 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
-import { DashboardCoin, DashboardData as DashboardService } from '../../service/dashboard-data';
+import { DashboardCoin,DashboardData as DashboardService } from '../../service/dashboard-data';
 import { ChartModule } from 'primeng/chart';
 import { Subscription } from 'rxjs';
-
 
 @Component({
     standalone: true,
@@ -21,6 +20,14 @@ export class RecentSalesWidget implements OnInit {
     sparklineOptions = {
         responsive: true,
         maintainAspectRatio: false,
+        layout: {
+            padding: {
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0
+            }
+        },
         plugins: {
           legend: {
             display: false

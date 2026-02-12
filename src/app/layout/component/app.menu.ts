@@ -25,15 +25,17 @@ export class AppMenu {
                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/app/dashboard'] }]
             },
             {
-                label: 'UI Components',
+                label: 'Trading',
                 items: [
-                    { label: 'Market', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/app/page/formlayout'] },
-                    { label: 'Deposit', icon: 'pi pi-fw pi-wallet', routerLink: ['/app/page/button'] },
-                    { label: 'Withdraw', icon: 'pi pi-fw pi-arrow-down', routerLink: ['/app/page/table'] },
-                    { label: 'Support', icon: 'pi pi-fw pi-check-square', routerLink: ['/app/page/input'] },
-                    { label: 'AI Trading', icon: 'pi pi-fw pi-chart-line', routerLink: ['/app/page/list'] },
-                    { label: 'Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/app/page/tree'] }
-                    // { label: 'Panel', icon: 'pi pi-fw pi-tablet', routerLink: ['/uikit/panel'] },
+                    { label: 'Deposit', icon: 'pi pi-fw pi-wallet', routerLink: ['/app/page/deposit'] },
+                    { label: 'Withdraw', icon: 'pi pi-fw pi-arrow-down', routerLink: ['/app/page/withdraw'] },
+                    { label: 'Spot Trade', icon: 'pi pi-fw pi-chart-scatter', routerLink: ['/app/page/spot-trade'] },
+                    { label: 'Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/app/page/events'] },
+                    { label: 'AI Trading', icon: 'pi pi-fw pi-chart-line', routerLink: ['/app/page/ai-trading'] },
+                    { label: 'Support', icon: 'pi pi-fw pi-check-square', routerLink: ['/app/page/support'] },
+                    // { label: 'Market', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/app/page/market'] },
+                    
+
                     // { label: 'Overlay', icon: 'pi pi-fw pi-clone', routerLink: ['/uikit/overlay'] },
                     // { label: 'Media', icon: 'pi pi-fw pi-image', routerLink: ['/app/page/media'] },
                     // { label: 'Menu', icon: 'pi pi-fw pi-bars', routerLink: ['/uikit/menu'] },
