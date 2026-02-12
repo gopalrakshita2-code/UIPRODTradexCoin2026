@@ -10,30 +10,19 @@ import { FeaturesWidget } from './components/featureswidget';
 import { HighlightsWidget } from './components/highlightswidget';
 import { PricingWidget } from './components/pricingwidget';
 import { FooterWidget } from './components/footerwidget';
-import { DashboardCoin, DashboardData } from '../service/dashboard-data';
-import { RecentSalesWidget } from '../dashboard/components/recentsaleswidget';
 
 @Component({
     selector: 'app-landing',
     standalone: true,
-    imports: [RouterModule, TopbarWidget, HeroWidget, FeaturesWidget, HighlightsWidget, PricingWidget, FooterWidget, RippleModule, StyleClassModule, ButtonModule, DividerModule,RecentSalesWidget],
+    imports: [RouterModule, TopbarWidget, HeroWidget, FeaturesWidget, HighlightsWidget, PricingWidget, FooterWidget, RippleModule, StyleClassModule, ButtonModule, DividerModule],
     templateUrl: './landing.html'
 })
 export class Landing implements OnInit, OnDestroy {
     private clickHandler?: (event: MouseEvent) => void;
-    dashboardDatas: DashboardCoin[] = [];
-    constructor(private dashboardData: DashboardData) {}
+    constructor() {}
 
     ngOnInit() {
-        this.dashboardData.getDashboardData().subscribe({
-            next: (response) => {
-                this.dashboardDatas = response.dashboardData;
-                console.log(response);
-            },
-            error: (error) => {
-                console.error(error);
-            }
-        });
+      
         // Add global click handler for anchor links with hash fragments
         this.clickHandler = (event: MouseEvent) => {
             const target = event.target as HTMLElement;

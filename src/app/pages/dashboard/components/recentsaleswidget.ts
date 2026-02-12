@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
-import { DashboardCoin, DashboardData } from '../../service/dashboard-data';
+import { DashboardCoin, DashboardData as DashboardService } from '../../service/dashboard-data';
 import { ChartModule } from 'primeng/chart';
+import { Subscription } from 'rxjs';
+
 
 @Component({
     standalone: true,
@@ -14,6 +16,7 @@ import { ChartModule } from 'primeng/chart';
 })
 export class RecentSalesWidget implements OnInit {
     coins: DashboardCoin[] = [];
+    private subscription?: Subscription;
 
     sparklineOptions = {
         responsive: true,
@@ -35,55 +38,51 @@ export class RecentSalesWidget implements OnInit {
           }
         }
       };
-    @Input() dashboardDatas: DashboardCoin[] = [];
 
-    constructor(private dashboardData: DashboardData) {}
+      constructor(private dashboardData: DashboardService) {}
+
 
     ngOnInit(): void {
-      const cachedData = localStorage.getItem('dashboardDatas');
-      if (cachedData) {
-          try {
-              const parsedData = JSON.parse(cachedData);
-              if (Array.isArray(parsedData) && parsedData.length > 0) {
-                  this.coins = parsedData;
-              }
-          } catch (e) {
-              console.error('Error parsing cached data:', e);
-          }
-      }
-
-      // If input data is already available, use it (will be handled by ngOnChanges too)
-      if (this.dashboardDatas && Array.isArray(this.dashboardDatas) && this.dashboardDatas.length > 0) {
-          this.coins = this.dashboardDatas;
-      }
-    }
-    ngOnChanges() {
-         // When new data arrives from parent, save to localStorage and update display
-         if (this.dashboardDatas && Array.isArray(this.dashboardDatas) && this.dashboardDatas.length > 0) {
-          console.log(this.dashboardDatas);
-          // Save to localStorage
-          localStorage.setItem('dashboardDatas', JSON.stringify(this.dashboardDatas));
-          // Update display
-          this.coins = this.dashboardDatas;
-      } else {
-          this.coins = [];
-      }
+      this.coins = this.dashboardData.getCurrentCoins();
+      this.subscription = this.dashboardData.coins$.subscribe((data) => {
+        if (data && data.length > 0) {
+            this.coins = data;
+        }
+    });
     }
     
-
-    getSparklineData(prices: number[]) {
-        return {
-          labels: prices.map((_, i) => i),
-          datasets: [
-            {
-              data: prices,
-              fill: false,
-              tension: 0.3,
-              borderWidth: 1,
-              pointRadius: 0
-            }
-          ]
-        };
+    ngOnDestroy(): void {
+      if (this.subscription) {
+          this.subscription.unsubscribe();
+          localStorage.removeItem('tableData');
       }
+  }
+
+  getSparklineData(prices: number[] | undefined) {
+    if (!prices || prices.length === 0) {
+        return {
+            labels: [],
+            datasets: [{
+                data: [],
+                fill: false,
+                tension: 0.3,
+                borderWidth: 1,
+                pointRadius: 0
+            }]
+        };
+    }
+    return {
+        labels: prices.map((_, i) => i),
+        datasets: [
+            {
+                data: prices,
+                fill: false,
+                tension: 0.3,
+                borderWidth: 1,
+                pointRadius: 0
+            }
+        ]
+    };
+}
       
 }

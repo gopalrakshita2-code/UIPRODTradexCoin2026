@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable ,tap,BehaviorSubject } from 'rxjs';
 import { Apiservice } from '@/service/apiservice';
+import { HttpClient } from '@angular/common/http';
+
+
 
 // One coin item from the dashboard API
 export interface DashboardCoin {
@@ -12,26 +15,56 @@ export interface DashboardCoin {
     price_change_percentage_24h: number;
     market_cap: number;
     market_cap_rank: number;
+    sparkline_in_7d?: {
+        price: number[];
+    };
 }
 
-// Full response shape from `/api/user/dashboard`
-export interface DashboardResponse {
-    success: boolean;
-    message: string;
-    dashboardData: DashboardCoin[];
-}
+
 
 @Injectable({
     providedIn: 'root'
 })
 export class DashboardData {
-    constructor(private apiService: Apiservice) {}
+    private apiUrl = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=true"
 
-    /**
-     * GET dashboard data from backend.
-     * Backend URL: http://localhost:8000/api/user/dashboard
-     */
-    getDashboardData(): Observable<DashboardResponse> {
-        return this.apiService.get<DashboardResponse>('user/dashboard');
-    }
+// BehaviorSubject to share data between components
+private coinsSubject = new BehaviorSubject<DashboardCoin[]>([]);
+public coins$ = this.coinsSubject.asObservable();
+
+constructor(private apiService: Apiservice, private http: HttpClient) {
+    // Load from localStorage on service initialization
+    this.loadFromCache();
+}
+        getData(): Observable<any[]> {
+            return this.http.get<any[]>(this.apiUrl).pipe(
+                tap((res) => {
+                    // Store in localStorage
+                    localStorage.setItem('tableData', JSON.stringify(res));
+                    // Emit to subscribers
+                    this.coinsSubject.next(res);
+                })
+            );
+        }
+
+        private loadFromCache(): void {
+            const cachedData = localStorage.getItem('tableData');
+            if (cachedData) {
+                try {
+                    const parsedData = JSON.parse(cachedData);
+                    if (Array.isArray(parsedData) && parsedData.length > 0) {
+                        this.coinsSubject.next(parsedData);
+                    }
+                } catch (e) {
+                    console.error('Error parsing cached data:', e);
+                }
+            }
+        }
+
+        getCurrentCoins(): DashboardCoin[] {
+            return this.coinsSubject.value;
+        }
+    
+  
+
 }

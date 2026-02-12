@@ -4,7 +4,7 @@
             <div>
                 <span class="block text-muted-color font-medium mb-4">Total Deposit</span>
                 <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">
-                    {{ totalDeposit | number: '1.0-2' }}
+                    ${{ totalDeposit | number: '1.0-2' }}.00
                 </div>
             </div>
             <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
@@ -22,7 +22,7 @@
             <div>
                 <span class="block text-muted-color font-medium mb-4">Total Withdrawal</span>
                 <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">
-                    {{ totalWithdrawal | number: '1.0-2' }}
+                    ${{ totalWithdrawal | number: '1.0-2' }}.00
                 </div>
             </div>
             <div class="flex items-center justify-center bg-orange-100 dark:bg-orange-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
@@ -40,7 +40,7 @@
             <div>
                 <span class="block text-muted-color font-medium mb-4">Wallet Balance</span>
                 <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">
-                    {{ balance | number: '1.0-2' }}
+                    ${{ balance | number: '1.0-2' }}.00
                 </div>
             </div>
             <div class="flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
@@ -58,7 +58,7 @@
             <div>
                 <span class="block text-muted-color font-medium mb-4">Today's PnL</span>
                 <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">
-                    {{ todayPnl | number: '1.0-2' }}
+                    ${{ todayPnl | number: '1.0-2' }}.00
                 </div>
             </div>
             <div class="flex items-center justify-center bg-purple-100 dark:bg-purple-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
@@ -66,6 +66,6 @@
             </div>
         </div>
         <span class="text-primary font-medium">Today's gain </span>
-        <span class="text-muted-color">{{ todayGain | number: '1.0-2' }} realized / unrealized</span>
+        <span class="text-muted-color">${{ todayGain | number: '1.0-2' }}.00 realized / unrealized</span>
     </div>
 </div>
