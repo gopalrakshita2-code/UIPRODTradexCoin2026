@@ -16,15 +16,15 @@ export class NotificationsWidget {
     ];
     constructor(public router: Router) {}
     goToSupport(){
-        this.router.navigate(['/app/page/input']);
+        this.router.navigate(['/app/page/support']);
     }
     goToDeposit(){
-        this.router.navigate(['/app/page/button']);
+        this.router.navigate(['/app/page/deposit']);
     }
     goToEvents(){
-        this.router.navigate(['/app/page/tree']);
+        this.router.navigate(['/app/page/events']);
     }
     goToWithdraw(){
-        this.router.navigate(['/app/page/table']);
+        this.router.navigate(['/app/page/withdraw']);
     }
 }
