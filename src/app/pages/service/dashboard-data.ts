@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, tap,BehaviorSubject } from 'rxjs';
+import { Observable, tap,BehaviorSubject, of } from 'rxjs';
 import { Apiservice } from '@/service/apiservice';
 import { HttpClient } from '@angular/common/http';
 
@@ -28,6 +28,9 @@ export class DashboardData {
 // BehaviorSubject to share data between components
 private coinsSubject = new BehaviorSubject<DashboardCoin[]>([]);
 public coins$ = this.coinsSubject.asObservable();
+    // BehaviorSubject for user data
+    private userDataSubject = new BehaviorSubject<any>(null);
+    public userData$ = this.userDataSubject.asObservable();
 
 constructor(private apiService: Apiservice, private http: HttpClient) {
     // Load from localStorage on service initialization
@@ -63,8 +66,17 @@ constructor(private apiService: Apiservice, private http: HttpClient) {
         }
 
 
-        getUserData(userEmail: string): Observable<any[]> {
-            return this.apiService.post(`user/dashboard`, { email: userEmail });
+        getUserData(userEmail: string): Observable<any> {
+            return this.apiService.post(`user/dashboard`, { email: userEmail }).pipe(
+                tap((res) => {
+                    // Emit to subscribers  
+                    this.userDataSubject.next(res);
+                })
+            );
+        }
+    
+        getCurrentUserData(): any {
+            return this.userDataSubject.value;
         }
 
 }

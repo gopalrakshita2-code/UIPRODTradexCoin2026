@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { DashboardData } from '../../service/dashboard-data';
+import { Subscription } from 'rxjs';
 
 @Component({
     standalone: true,
@@ -7,32 +9,36 @@ import { Component, OnInit } from '@angular/core';
     imports: [CommonModule],
     templateUrl: './statswidget.html'
 })
-export class StatsWidget implements OnInit {
+export class StatsWidget implements OnInit, OnDestroy {
     balance = 0;
     totalDeposit = 0;
     totalWithdrawal = 0;
     todayPnl = 0;
     todayGain = 0;
+    private subscription?: Subscription;
+
+    constructor(private dashboardData: DashboardData) {}
 
     ngOnInit(): void {
-        const storedUser = localStorage.getItem('user');
+        // Subscribe to user data from API via BehaviorSubject
+        this.subscription = this.dashboardData.userData$.subscribe((userData) => {
+            if (userData) {
+                // Handle different response structures
+                const data = userData?.data || userData;
+                const user = data?.user || data;
 
-        if (!storedUser) {
-            return;
-        }
+                this.balance = Number(user?.balance ?? 0);
+                this.totalDeposit = Number(user?.totalDeposit ?? 0);
+                this.totalWithdrawal = Number(user?.totalWithdrawal ?? 0);
+                this.todayPnl = Number(user?.todayPnl ?? 0);
+                this.todayGain = Number(user?.todayGain ?? 0);
+            }
+        });
+    }
 
-        try {
-            const parsed = JSON.parse(storedUser);
-            // Support both { data: { user } } and plain { user } shapes
-            const user = parsed?.data?.user ?? parsed?.user ?? parsed;
-
-            this.balance = Number(user?.balance ?? 0);
-            this.totalDeposit = Number(user?.totalDeposit ?? 0);
-            this.totalWithdrawal = Number(user?.totalWithdrawal ?? 0);
-            this.todayPnl = Number(user?.todayPnl ?? 0);
-            this.todayGain = Number(user?.todayGain ?? 0);
-        } catch {
-            // If parsing fails, keep default zero values
+    ngOnDestroy(): void {
+        if (this.subscription) {
+            this.subscription.unsubscribe();
         }
     }
 }
