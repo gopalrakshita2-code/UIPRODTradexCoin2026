@@ -79,4 +79,23 @@ constructor(private apiService: Apiservice, private http: HttpClient) {
             return this.userDataSubject.value;
         }
 
+        updateUserBalanceAndProfit(updateData: {
+            email: string;
+            balance: number;
+            todayPnl: number;
+            todayGain: number;
+            coinname: string;
+            timing: string;
+            direction: 'up' | 'down';
+            date: string;
+            createdAt: string;
+        }): Observable<any> {
+            return this.apiService.put<any>('user/update-user-data', updateData).pipe(
+                tap(() => {
+                    // Refresh user data after update
+                    this.getUserData(updateData.email).subscribe();
+                })
+            );
+        }
+
 }

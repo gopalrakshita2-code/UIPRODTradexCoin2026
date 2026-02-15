@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, NgZone } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
+import { ProgressBarModule } from 'primeng/progressbar';
 import { Router, RouterModule } from '@angular/router';
+import { DashboardData } from '../service/dashboard-data';
+import { Subscription } from 'rxjs';
 
 declare const TradingView: any;
 
@@ -21,6 +24,7 @@ declare const TradingView: any;
         InputTextModule,
         InputNumberModule,
         DialogModule,
+        ProgressBarModule,
         RouterModule
     ],
     templateUrl: './panelsdemo.html'
@@ -49,6 +53,33 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
     
     // Dialog
     showSuccessDialog: boolean = false;
+    showCompletionDialog: boolean = false;
+    isLoading: boolean = false;
+    
+    // Timer properties
+    timerProgress: number = 0;
+    timerSeconds: number = 0;
+    totalSeconds: number = 0;
+    private timerInterval: any = null;
+    
+    // Trade details for dialog
+    tradeDetails: {
+        symbol: string;
+        coinname: string;
+        timing: string;
+        amount: number;
+        time: string;
+        direction: 'up' | 'down';
+        returnAmount: number;
+    } | null = null;
+    
+    // Track last trade for balance deduction
+    lastTradeDirection: 'up' | 'down' | null = null;
+    lastTradeAmount: number = 0;
+    
+    // Real-time balance from API
+    currentBalance: number = 0;
+    private userDataSubscription?: Subscription;
     
     coins = [
         { label: 'BTC', value: 'BINANCE:BTCUSDT' },
@@ -62,33 +93,74 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
     ];
     
     returnCards = [
-        { time: '60 Seconds', return: '10.00%', min: 1000, max: 20000, returnPercent: 10 },
-        { time: '90 Seconds', return: '20.00%', min: 20000, max: 60000, returnPercent: 20 },
-        { time: '120 Seconds', return: '30.00%', min: 60000, max: 120000, returnPercent: 30 },
-        { time: '180 Seconds', return: '40.00%', min: 120000, max: 180000, returnPercent: 40 }
+        { time: '60 Seconds', return: '10.00%', min: 1000, max: 20000, returnPercent: 10, seconds: 60 },
+        { time: '90 Seconds', return: '20.00%', min: 20000, max: 60000, returnPercent: 20, seconds: 90 },
+        { time: '120 Seconds', return: '30.00%', min: 60000, max: 120000, returnPercent: 30, seconds: 120 },
+        { time: '180 Seconds', return: '40.00%', min: 120000, max: 180000, returnPercent: 40, seconds: 180 }
     ];
 
-    constructor(private router: Router) {}
+    constructor(
+        private router: Router, 
+        private ngZone: NgZone,
+        private dashboardData: DashboardData
+    ) {}
 
     ngAfterViewInit(): void {
         this.currentSymbol = this.symbol;
         this.currentInterval = this.interval;
         this.loadTradingViewScript();
+        
+        // Subscribe to user data from API
+        this.userDataSubscription = this.dashboardData.userData$.subscribe((userData) => {
+            if (userData) {
+                const dashboardData = userData?.dashboardData || userData;
+                this.currentBalance = Number(dashboardData?.balance ?? 0);
+            }
+        });
+        
+        // Fetch balance from API
+        this.fetchBalance();
     }
 
-    getCurrentBalance(): number {
+    private getUserEmail(): string {
         const storedUser = localStorage.getItem('user');
-        if (!storedUser) {
-            return 0;
-        }
-
+        if (!storedUser) return '';
         try {
             const parsed = JSON.parse(storedUser);
             const user = parsed?.data?.user ?? parsed?.user ?? parsed;
-            return Number(user?.balance ?? 0);
+            return user?.email || '';
         } catch {
-            return 0;
+            return '';
         }
+    }
+
+    private fetchBalance(): void {
+        const email = this.getUserEmail();
+        if (email) {
+            this.dashboardData.getUserData(email).subscribe();
+        }
+    }
+
+    getCurrentBalance(): number {
+        return this.currentBalance;
+    }
+
+    getSymbolDisplay(symbol: string): string {
+        // Convert BINANCE:BTCUSDT to BTC/USDT
+        const parts = symbol.split(':');
+        if (parts.length > 1) {
+            const pair = parts[1];
+            if (pair.includes('USDT')) {
+                return pair.replace('USDT', '/USDT');
+            }
+            return pair;
+        }
+        return symbol;
+    }
+
+    // Helper method for Math.round in template
+    round(value: number): number {
+        return Math.round(value);
     }
 
     selectCard(index: number): void {
@@ -124,25 +196,26 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
             return;
         }
 
-        // Calculate expected return: amount / 10 = dollar amount
-        const dollarAmount = amountNum / 10;
         
-        // Calculate return based on percentage
+        const dollarAmount = amountNum;
         const returnAmount = (dollarAmount * selectedCard.returnPercent) / 100;
-        const totalReturn = dollarAmount + returnAmount;
-        
-        this.expectedReturn = `$${totalReturn.toFixed(2)}`;
+        // Show only the return amount, not the total
+        this.expectedReturn = `$${returnAmount.toFixed(2)}`;
         this.amountError = '';
     }
 
     checkBalanceAndTrade(direction: 'up' | 'down'): void {
+        // Fetch fresh balance from API before trade
+        this.fetchBalance();
+        
+        // Use current balance from subscription
         const currentBalance = this.getCurrentBalance();
         
         // If no balance, clear both fields
         if (!currentBalance || currentBalance === 0) {
             this.amount = '';
             this.expectedReturn = '';
-            this.amountError = 'No balance available';
+            this.amountError = 'insufficient balance add money to your account';
             return;
         }
 
@@ -171,9 +244,33 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
         // Check if balance is sufficient for the trade
         // Balance should be >= minimum required for the card AND >= entered amount
         if (currentBalance >= selectedCard.min && currentBalance >= amountNum) {
-            // Show success dialog
-            this.showSuccessDialog = true;
-            this.amountError = '';
+            // Show loader
+            this.isLoading = true;
+            
+            // Calculate trade details
+            const dollarAmount = amountNum;
+            const returnAmount = (dollarAmount * selectedCard.returnPercent) / 100;
+            
+            // Store trade information
+            this.lastTradeDirection = direction;
+            this.lastTradeAmount = amountNum;
+            
+            this.tradeDetails = {
+                symbol: this.getSymbolDisplay(this.currentSymbol),
+                amount: dollarAmount,
+                time: selectedCard.time,
+                direction: direction,
+                returnAmount: returnAmount,
+                coinname: this.getCoinName(this.currentSymbol),
+                timing: selectedCard.time
+            };
+            // Simulate loading delay (you can remove this if not needed)
+            setTimeout(() => {
+                this.isLoading = false;
+                this.showSuccessDialog = true;
+                this.startTimer(selectedCard.seconds);
+                this.amountError = '';
+            }, 500);
         } else if (currentBalance < selectedCard.min) {
             this.amountError = `Insufficient balance. Minimum required: ${selectedCard.min.toLocaleString()}, Your balance: ${currentBalance.toLocaleString()}`;
         } else if (currentBalance < amountNum) {
@@ -181,10 +278,48 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
         }
     }
 
+    startTimer(totalSeconds: number): void {
+        this.totalSeconds = totalSeconds;
+        this.timerSeconds = totalSeconds;
+        this.timerProgress = 0;
+        
+        // Clear any existing timer
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+        }
+        
+        this.ngZone.runOutsideAngular(() => {
+            this.timerInterval = setInterval(() => {
+                this.ngZone.run(() => {
+                    this.timerSeconds--;
+                    this.timerProgress = ((totalSeconds - this.timerSeconds) / totalSeconds) * 100;
+                    
+                    if (this.timerSeconds <= 0) {
+                        this.timerSeconds = 0;
+                        this.timerProgress = 100;
+                        clearInterval(this.timerInterval);
+                        this.timerInterval = null;
+                        // Timer completed - deduct balance and navigate
+                        this.onTimerComplete();
+                    }
+                });
+            }, 1000);
+        });
+    }
+
+    onTimerComplete(): void {
+        // Update balance and profit via API
+        if (this.tradeDetails) {
+            this.updateBalanceViaAPI();
+        }
+        // Close the trade progress dialog
+        this.showSuccessDialog = false;
+        // Show completion dialog
+        this.showCompletionDialog = true;
+    }
 
     onUpClick(): void {
         this.checkBalanceAndTrade('up');
-
     }
 
     onDownClick(): void {
@@ -192,13 +327,143 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
     }
 
     closeSuccessDialog(): void {
+        // Clear timer if still running
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+        
         this.showSuccessDialog = false;
-        this.router.navigate(['/app/dashboard']);
-        // Clear both fields after successful trade
+        // Don't navigate here anymore - navigation happens in onMoveToDashboard
+        // Reset fields
         this.amount = '';
         this.expectedReturn = '';
         this.amountError = '';
+        // Reset trade tracking
+        this.lastTradeDirection = null;
+        this.lastTradeAmount = 0;
+        this.tradeDetails = null;
+        this.timerProgress = 0;
+        this.timerSeconds = 0;
     }
+
+    onTryAgain(): void {
+        // Close completion dialog
+        this.showCompletionDialog = false;
+        // Reset fields but stay on same page
+        this.amount = '';
+        this.expectedReturn = '';
+        this.amountError = '';
+        // Reset trade tracking
+        this.lastTradeDirection = null;
+        this.lastTradeAmount = 0;
+        this.tradeDetails = null;
+        this.timerProgress = 0;
+        this.timerSeconds = 0;
+        // Clear timer if still running
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+
+    onMoveToDashboard(): void {
+        // Close completion dialog
+        this.showCompletionDialog = false;
+        // Navigate to dashboard
+        this.router.navigate(['/app/dashboard']);
+        // Reset all fields
+        this.amount = '';
+        this.expectedReturn = '';
+        this.amountError = '';
+        // Reset trade tracking
+        this.lastTradeDirection = null;
+        this.lastTradeAmount = 0;
+        this.tradeDetails = null;
+        this.timerProgress = 0;
+        this.timerSeconds = 0;
+        // Clear timer if still running
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+
+    private getUserProfit(): 'up' | 'down' {
+        const storedUser = localStorage.getItem('user');
+        if (!storedUser) return 'down'; // Default to 'down' if not found
+        try {
+            const parsed = JSON.parse(storedUser);
+            const user = parsed?.data?.user ?? parsed?.user ?? parsed;
+            const profit = user?.profit || user?.profittype || 'down';
+            return profit === 'up' ? 'up' : 'down';
+        } catch {
+            return 'down'; // Default to 'down' on error
+        }
+    }
+
+    private updateBalanceViaAPI(): void {
+        const email = this.getUserEmail();
+        if (!email || !this.tradeDetails) return;
+    
+        // Get current balance from API before calculating
+        const currentBalance = this.currentBalance;
+        const tradeAmount = Number(this.tradeDetails.amount || 0);
+        const returnAmount = Number(this.tradeDetails.returnAmount || 0);
+        const direction = this.lastTradeDirection || 'down';
+        
+       
+        // Get profit type from localStorage user data
+    const profitType = this.getUserProfit();
+    const newBalance = profitType === 'up' ? currentBalance + returnAmount : Math.max(0, currentBalance - tradeAmount);
+        // Get coin name from symbol (e.g., "BINANCE:BTCUSDT" -> "BTC")
+        const coinname = this.getCoinName(this.currentSymbol);
+        
+        // Get timing from selected card
+        const selectedCard = this.returnCards[this.selectedCardIndex];
+        const timing = selectedCard.time;
+        
+        // Get current date
+        const date = new Date().toISOString();
+        const payload={
+            email: email,
+            balance: newBalance,
+            todayPnl:profitType === 'up' ? returnAmount : -returnAmount,
+            todayGain: profitType === 'up' ? returnAmount : -returnAmount,
+            coinname: coinname,
+            timing: timing,
+            direction: direction,
+            date: date,
+            createdAt: new Date().toISOString()
+        }
+        console.log(payload);
+        
+    
+        this.dashboardData.updateUserBalanceAndProfit(payload).subscribe({
+            next: (res) => {
+                console.log('Trade data updated successfully:', res);
+            },
+            error: (err) => {
+                console.error('Error updating trade data:', err);
+            }
+        });
+    }
+
+
+
+    // Helper method to extract coin name from symbol
+private getCoinName(symbol: string): string {
+    // Convert "BINANCE:BTCUSDT" to "BTC"
+    const parts = symbol.split(':');
+    if (parts.length > 1) {
+        const pair = parts[1];
+        if (pair.includes('USDT')) {
+            return pair.replace('USDT', '');
+        }
+        return pair;
+    }
+    return symbol;
+}
 
     changeSymbol(symbol: string): void {
         if (this.currentSymbol === symbol) {
@@ -276,7 +541,19 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
         }, 100);
     }
 
+
     ngOnDestroy(): void {
+        // Clear timer if still running
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+        
+        // Unsubscribe from user data
+        if (this.userDataSubscription) {
+            this.userDataSubscription.unsubscribe();
+        }
+        
         // Clean up widget instance if needed
         if (this.widgetInstance) {
             const container = document.getElementById(this.containerId);

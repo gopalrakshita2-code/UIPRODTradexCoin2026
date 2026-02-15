@@ -48,6 +48,7 @@ export class AppTopbar {
          // Clear localStorage
         localStorage.removeItem('user');
         localStorage.removeItem('token');
+        localStorage.removeItem('dashboardDatas');
         // Navigate to login
         this.router.navigate(['/auth/login']);   
     }
