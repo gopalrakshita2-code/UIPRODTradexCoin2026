@@ -22,8 +22,8 @@ export class OverlayDemo implements OnInit, OnDestroy {
         // Subscribe to trade history observable
         this.subscription = this.dashboardData.tradeHistory$.subscribe((data) => {
             if (data) {
-                // Extract tradeHistory array from response
-                this.tradeHistory = data?.tradeHistory || [];
+                const history = data?.tradeHistory || [];
+                this.tradeHistory = [...history].reverse(); 
             }
         });
         
