@@ -9,7 +9,6 @@ import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 import { FluidModule } from 'primeng/fluid';
 import { Authservice } from './service/authservice';
-import { Auth, signInWithPopup, GoogleAuthProvider } from '@angular/fire/auth';
 import { DialogModule } from 'primeng/dialog';
 import { CommonModule } from '@angular/common';
 
@@ -31,8 +30,7 @@ export class Login {
 
     constructor(
         private authService: Authservice,
-        private router: Router,
-        private auth: Auth
+        private router: Router
         
     ) {}
 
@@ -82,56 +80,6 @@ export class Login {
         this.errorDialog = false;
     }
 
-   async onGoogleSignIn() {
-            this.email = '';
-            this.password = '';
-            this.checked = false;
-            this.errorDialog = false;
-            this.errorMessage = '';
-            this.isLoading = true;
-            
-            try {
 
-                const provider = new GoogleAuthProvider();
-                const result = await signInWithPopup(this.auth, provider);                               
-                const idToken = await result.user.getIdToken();
-                const uid = result.user.uid;  
-console.log(result);
-
-                if (result) {
-                localStorage.setItem('token', JSON.stringify(result));
-                const payload = {
-                    idToken: idToken,        // ✅ REQUIRED - for verification
-                    uid: uid,                // ✅ CORRECT - for validation
-                    email: result.user.email,
-                    displayName: result.user.displayName,
-                    photoURL: result.user.photoURL,
-                    emailVerified: result.user.emailVerified,
-                    providerId: 'google.com',
-                    role: 'tempuserSSOfromgoogle',
-                    isSSO: true
-                };
-                // Your backend call logic here
-                //   this.router.navigate(['/app/page/upload-scan']);
-                this.authService.googleLogin(payload).subscribe({
-                    next: (response) => {
-                        this.isLoading=false;
-                        if (response) {
-                            localStorage.setItem('user', JSON.stringify(response));
-                        }
-                        this.router.navigate(['/app/dashboard']);
-                    },
-                    error:(error)=>{}
-                })
-
-                }
-            } catch (error: any) {
-                console.error('Error during Google Sign-In:', error);
-                this.errorMessage = error?.message || 'Google sign-in failed';
-                this.errorDialog = true;
-            } finally {
-                this.isLoading = false;
-            }
-            }
 
 }
