@@ -28,7 +28,7 @@ export default [
     { path: 'spot-trade', data: { breadcrumb: 'Panel' }, component: PanelsDemo },
     { path: 'timeline', data: { breadcrumb: 'Timeline' }, component: TimelineDemo },
     { path: 'withdraw', data: { breadcrumb: 'Table' }, component: TableDemo },
-    { path: 'overlay', data: { breadcrumb: 'Overlay' }, component: OverlayDemo },
+    { path: 'trade-history', data: { breadcrumb: 'Overlay' }, component: OverlayDemo },
     { path: 'events', data: { breadcrumb: 'Tree' }, component: TreeDemo },
     { path: 'menu', data: { breadcrumb: 'Menu' }, component: MenuDemo },
     { path: '**', redirectTo: '/notfound' }

@@ -1,0 +1,46 @@
+<div class="card mb-8">
+    <div class="font-semibold text-xl mb-4">Trade History</div>
+    <p-table 
+        [value]="tradeHistory" 
+        [paginator]="true" 
+        [rows]="10" 
+        responsiveLayout="scroll" 
+        [styleClass]="'p-datatable-sm'">
+        <ng-template #header>
+            <tr>
+                <th>Date</th>
+                <th>Coin</th>
+                <th>Direction</th>
+                <th>Timing</th>
+                <th>Balance</th>
+                <th>Gain/Loss</th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-trade>
+            <tr>
+                <td>
+                    {{ trade.date | date: 'short' }}
+                </td>
+                <td>
+                    {{ trade.coinname || 'N/A' }}
+                </td>
+                <td>
+                    <span [ngClass]="{ 'text-green-500': trade.direction === 'up', 'text-red-500': trade.direction === 'down' }">
+                        {{ trade.direction === 'up' ? 'Up' : 'Down' }}
+                    </span>
+                </td>
+                <td>
+                    {{ trade.timing || 'N/A' }}
+                </td>
+                <td>
+                    {{ trade.balance | currency: 'USD' }}
+                </td>
+                <td>
+                    <span [ngClass]="{ 'text-green-500': trade.todayGain >= 0, 'text-red-500': trade.todayGain < 0 }">
+                        {{ trade.todayGain | currency: 'USD' }}
+                    </span>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

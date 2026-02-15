@@ -31,6 +31,9 @@ public coins$ = this.coinsSubject.asObservable();
     // BehaviorSubject for user data
     private userDataSubject = new BehaviorSubject<any>(null);
     public userData$ = this.userDataSubject.asObservable();
+    // BehaviorSubject for trade history
+    private tradeHistorySubject = new BehaviorSubject<any>(null);
+    public tradeHistory$ = this.tradeHistorySubject.asObservable();
 
 constructor(private apiService: Apiservice, private http: HttpClient) {
     // Load from localStorage on service initialization
@@ -97,5 +100,19 @@ constructor(private apiService: Apiservice, private http: HttpClient) {
                 })
             );
         }
+
+        getTradeHistory(email: string): Observable<any> {
+            return this.apiService.post(`user/trade/history`, { email: email }).pipe(
+                tap((res) => {
+                    // Emit to subscribers
+                    this.tradeHistorySubject.next(res);
+                })
+            );
+        }   
+
+        getCurrentTradeHistory(): any {
+            return this.tradeHistorySubject.value;
+        }
+
 
 }
