@@ -10,7 +10,6 @@ import { FeaturesWidget } from './components/featureswidget';
 import { HighlightsWidget } from './components/highlightswidget';
 import { PricingWidget } from './components/pricingwidget';
 import { FooterWidget } from './components/footerwidget';
-import {  DashboardData } from '../service/dashboard-data';
 
 @Component({
     selector: 'app-landing',
@@ -20,7 +19,6 @@ import {  DashboardData } from '../service/dashboard-data';
 })
 export class Landing implements OnInit, OnDestroy {
     private clickHandler?: (event: MouseEvent) => void;
-    // dashboardDatas: DashboardCoin[] = [];
    
     constructor() {}
 
