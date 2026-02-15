@@ -1,46 +1,80 @@
-<div class="card mb-8">
+<div class="card mb-8 p-4 md:p-6">
     <div class="font-semibold text-xl mb-4">Trade History</div>
-    <p-table 
-        [value]="tradeHistory" 
-        [paginator]="true" 
-        [rows]="10" 
-        responsiveLayout="scroll" 
-        [styleClass]="'p-datatable-sm'">
-        <ng-template #header>
-            <tr>
-                <th>Date</th>
-                <th>Coin</th>
-                <th>Direction</th>
-                <th>Timing</th>
-                <th>Balance</th>
-                <th>Gain/Loss</th>
-            </tr>
-        </ng-template>
-        <ng-template #body let-trade>
-            <tr>
-                <td>
-                    {{ trade.date | date: 'short' }}
-                </td>
-                <td>
-                    {{ trade.coinname || 'N/A' }}
-                </td>
-                <td>
-                    <span [ngClass]="{ 'text-green-500': trade.direction === 'up', 'text-red-500': trade.direction === 'down' }">
+    
+    <!-- Card-based layout for mobile -->
+    <div class="space-y-4" *ngIf="tradeHistory.length > 0">
+        <div 
+            *ngFor="let trade of tradeHistory" 
+            class="bg-surface-100 dark:bg-surface-800 rounded-lg p-4 border border-surface-200 dark:border-surface-700 shadow-sm hover:shadow-md transition-shadow">
+            
+            <!-- Header Row: Date and Direction -->
+            <div class="flex items-center justify-between mb-3 pb-3 border-b border-surface-200 dark:border-surface-700">
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-calendar text-surface-500 text-sm"></i>
+                    <span class="text-xs md:text-sm text-surface-600 dark:text-surface-400">
+                        {{ trade.date | date: 'short' }}
+                    </span>
+                </div>
+                <div>
+                    <span 
+                        [ngClass]="{ 
+                            'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300': trade.direction === 'up', 
+                            'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300': trade.direction === 'down' 
+                        }"
+                        class="px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                        <i [class]="trade.direction === 'up' ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"></i>
                         {{ trade.direction === 'up' ? 'Up' : 'Down' }}
                     </span>
-                </td>
-                <td>
-                    {{ trade.timing || 'N/A' }}
-                </td>
-                <td>
-                    {{ trade.balance | currency: 'USD' }}
-                </td>
-                <td>
-                    <span [ngClass]="{ 'text-green-500': trade.todayGain >= 0, 'text-red-500': trade.todayGain < 0 }">
-                        {{ trade.todayGain | currency: 'USD' }}
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="grid grid-cols-2 gap-3 md:gap-4">
+                <!-- Coin -->
+                <div class="flex flex-col">
+                    <span class="text-xs text-surface-500 dark:text-surface-400 mb-1">Coin</span>
+                    <span class="text-sm md:text-base font-semibold text-surface-900 dark:text-surface-0">
+                        {{ trade.coinname || 'N/A' }}
                     </span>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
+                </div>
+
+                <!-- Timing -->
+                <div class="flex flex-col">
+                    <span class="text-xs text-surface-500 dark:text-surface-400 mb-1">Timing</span>
+                    <span class="text-sm md:text-base font-semibold text-surface-900 dark:text-surface-0">
+                        {{ trade.timing || 'N/A' }}
+                    </span>
+                </div>
+
+                <!-- Balance -->
+                <div class="flex flex-col">
+                    <span class="text-xs text-surface-500 dark:text-surface-400 mb-1">Balance</span>
+                    <span class="text-sm md:text-base font-semibold text-surface-900 dark:text-surface-0">
+                        {{ trade.balance | currency: 'USD' }}
+                    </span>
+                </div>
+
+                <!-- Gain/Loss -->
+                <div class="flex flex-col">
+                    <span class="text-xs text-surface-500 dark:text-surface-400 mb-1">Gain/Loss</span>
+                    <span 
+                        [ngClass]="{ 
+                            'text-green-600 dark:text-green-400': trade.todayGain >= 0, 
+                            'text-red-600 dark:text-red-400': trade.todayGain < 0 
+                        }"
+                        class="text-sm md:text-base font-bold">
+                        {{ trade.todayGain >= 0 ? '+' : '' }}{{ trade.todayGain | currency: 'USD' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="tradeHistory.length === 0" class="text-center py-12">
+        <div class="flex flex-col items-center gap-3">
+            <i class="pi pi-inbox text-5xl text-surface-400"></i>
+            <p class="text-surface-600 dark:text-surface-400 text-sm md:text-base">No trade history found</p>
+        </div>
+    </div>
 </div>
