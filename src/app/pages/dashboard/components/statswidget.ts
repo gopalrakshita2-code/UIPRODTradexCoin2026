@@ -23,19 +23,17 @@ export class StatsWidget implements OnInit, OnDestroy {
         // Subscribe to user data from API via BehaviorSubject
         this.subscription = this.dashboardData.userData$.subscribe((userData) => {
             if (userData) {
-                // Handle different response structures
-                const data = userData?.data || userData;
-                const user = data?.user || data;
-
-                this.balance = Number(user?.balance ?? 0);
-                this.totalDeposit = Number(user?.totalDeposit ?? 0);
-                this.totalWithdrawal = Number(user?.totalWithdrawal ?? 0);
-                this.todayPnl = Number(user?.todayPnl ?? 0);
-                this.todayGain = Number(user?.todayGain ?? 0);
+                // Extract dashboardData from the API response
+                const dashboardData = userData?.dashboardData || userData;
+    
+                this.balance = Number(dashboardData?.balance ?? 0);
+                this.totalDeposit = Number(dashboardData?.totalDeposit ?? 0);
+                this.totalWithdrawal = Number(dashboardData?.totalWithdrawal ?? 0);
+                this.todayPnl = Number(dashboardData?.todayPnl ?? 0);
+                this.todayGain = Number(dashboardData?.todayGain ?? 0);
             }
         });
     }
-
     ngOnDestroy(): void {
         if (this.subscription) {
             this.subscription.unsubscribe();
