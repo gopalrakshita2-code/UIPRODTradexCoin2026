@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable ,tap,BehaviorSubject } from 'rxjs';
+import { Observable, tap,BehaviorSubject } from 'rxjs';
 import { Apiservice } from '@/service/apiservice';
 import { HttpClient } from '@angular/common/http';
-
-
 
 // One coin item from the dashboard API
 export interface DashboardCoin {
@@ -19,7 +17,6 @@ export interface DashboardCoin {
         price: number[];
     };
 }
-
 
 
 @Injectable({
@@ -64,7 +61,10 @@ constructor(private apiService: Apiservice, private http: HttpClient) {
         getCurrentCoins(): DashboardCoin[] {
             return this.coinsSubject.value;
         }
-    
-  
+
+
+        getUserData(userEmail: string): Observable<any[]> {
+            return this.apiService.post(`user/dashboard`, { email: userEmail });
+        }
 
 }

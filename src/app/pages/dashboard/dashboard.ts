@@ -16,7 +16,9 @@ export class Dashboard implements OnInit {
     constructor(private dashboardData: DashboardData) {}
 
     ngOnInit() {
+        this.getUserData();
         this.gettableData();
+
     }
 
     gettableData() {
@@ -46,5 +48,21 @@ export class Dashboard implements OnInit {
         };
         
         return symbolMap[symbol.toLowerCase()] || `BINANCE:${symbol.toUpperCase()}USDT`;
+    }
+
+    getUserData() {
+        const user = localStorage.getItem('user');
+        const userData = JSON.parse(user || '{}');
+        const userEmail = userData.data.user.email;
+        console.log(userEmail); 
+        
+        this.dashboardData.getUserData(userEmail).subscribe({
+            next: (res) => {
+                console.log(res);
+            },
+            error: (err) => {
+                console.warn('API error:', err);
+            }
+        });
     }
 }
