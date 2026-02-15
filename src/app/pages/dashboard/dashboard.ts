@@ -62,7 +62,7 @@ export class Dashboard implements OnInit {
         // This will trigger the API call and update the BehaviorSubject
         this.dashboardData.getUserData(userEmail).subscribe({
             next: (res) => {
-                console.log(res);
+                console.log("userData",res);
                 
                 // Data is automatically shared via BehaviorSubject
                 // No need to store in component if not needed here
