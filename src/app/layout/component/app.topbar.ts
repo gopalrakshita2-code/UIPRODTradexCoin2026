@@ -18,10 +18,28 @@ import { ButtonModule } from 'primeng/button';
 export class AppTopbar {
     items!: MenuItem[];
     displayConfirmation: boolean = false;
+    userName: string = '';
 
     constructor(public layoutService: LayoutService, 
         
         public confirmationService: ConfirmationService ,public router: Router) {}
+        ngOnInit(): void {
+            this.getUserName();
+        }
+
+        getUserName() {
+            try {
+                const userData = localStorage.getItem('user');
+                if (userData) {
+                    const parsedData = JSON.parse(userData);
+                    this.userName = parsedData?.data?.user?.name || '';
+                }
+            } catch (error) {
+                console.error('Error parsing user data from localStorage:', error);
+                this.userName = '';
+            }
+        }
+
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
