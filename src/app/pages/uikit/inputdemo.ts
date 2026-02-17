@@ -70,6 +70,7 @@ export class InputDemo  {
     fullName = '';
     email = '';
     message = '';
+    whatsappNumber = '13022139766';
 
     constructor(private service: MessageService) {}
 
@@ -101,6 +102,11 @@ export class InputDemo  {
             this.message = '';
         }
     }
-
-    
+    openWhatsApp() {
+        // Remove all non-numeric characters (spaces, +, dashes, etc.)
+        const cleanNumber = this.whatsappNumber.replace(/\D/g, '');
+        const message = encodeURIComponent('Hi, I have a query related to your platform. Shall we connect?');
+        const whatsappUrl = `https://wa.me/${cleanNumber}?text=${message}`;
+        window.open(whatsappUrl, '_blank');
+    }
 }
