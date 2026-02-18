@@ -30,6 +30,6 @@ export default [
     { path: 'withdraw', data: { breadcrumb: 'Table' }, component: TableDemo },
     { path: 'trade-history', data: { breadcrumb: 'Overlay' }, component: OverlayDemo },
     { path: 'events', data: { breadcrumb: 'Tree' }, component: TreeDemo },
-    { path: 'menu', data: { breadcrumb: 'Menu' }, component: MenuDemo },
+    { path: 'loan', data: { breadcrumb: 'Menu' }, component: MenuDemo },
     { path: '**', redirectTo: '/notfound' }
 ] as Routes;

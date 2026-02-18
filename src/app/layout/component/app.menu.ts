@@ -33,6 +33,7 @@ export class AppMenu {
                      { label: 'Trade History', icon: 'pi pi-fw pi-history', routerLink: ['/app/page/trade-history'] },
                     { label: 'Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/app/page/events'] },
                     { label: 'AI Trading', icon: 'pi pi-fw pi-chart-line', routerLink: ['/app/page/ai-trading'] },
+                    { label: 'Loan', icon: 'pi pi-fw pi-money-bill', routerLink: ['/app/page/loan'] },
                     { label: 'Support', icon: 'pi pi-fw pi-check-square', routerLink: ['/app/page/support'] },
                     // { label: 'Market', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/app/page/market'] },
                     
