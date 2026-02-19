@@ -102,11 +102,15 @@ export class InputDemo  {
             this.message = '';
         }
     }
-    openWhatsApp() {
+     openWhatsApp() {
         // Remove all non-numeric characters (spaces, +, dashes, etc.)
         const cleanNumber = this.whatsappNumber.replace(/\D/g, '');
         const message = encodeURIComponent('Hi, I have a query related to your platform. Shall we connect?');
-        const whatsappUrl = `https://wa.me/${cleanNumber}?text=${message}`;
-        window.open(whatsappUrl, '_blank');
+        
+        // Use api.whatsapp.com which works on both iOS and Android
+        const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanNumber}&text=${message}`;
+        
+        // Use location.href instead of window.open for better iOS compatibility
+        window.location.href = whatsappUrl;
     }
 }
