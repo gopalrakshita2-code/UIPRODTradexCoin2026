@@ -21,7 +21,7 @@
                                             <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
                                             <label for="rememberme1" class="text-sm sm:text-base">Remember me</label>
                                         </div>
-                                        <span class="font-medium no-underline text-primary text-sm sm:text-base cursor-pointer">Forgot password?</span>
+                                        <a routerLink="/auth/forgot-password" class="font-medium no-underline text-primary text-sm sm:text-base cursor-pointer">Forgot password?</a>
                                     </div>
                                     
                                     <!-- Buttons Grid - Uniform Size -->
@@ -45,7 +45,7 @@
                                     <div class="grid grid-cols-2 gap-3">
                                       
                                                  
-                                                                                <p-button 
+                                             <p-button 
                                             label="Home" 
                                             routerLink="/" 
                                             severity="help" 

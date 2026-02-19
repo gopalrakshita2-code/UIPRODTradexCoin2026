@@ -22,6 +22,11 @@ export interface AuthResponse {
       token?: string;
   };
 }
+export interface ResetPasswordPayload {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -37,9 +42,10 @@ export class Authservice {
   login(payload: LoginPayload): Observable<AuthResponse> {
       return this.apiService.post<AuthResponse>('auth/login', payload);
   }
-  googleLogin(payload: any): Observable<AuthResponse> {
-      return this.apiService.post<AuthResponse>('auth/google',payload);
-  }
+  
+      resetPassword(payload: ResetPasswordPayload): Observable<AuthResponse> {
+      return this.apiService.post<AuthResponse>('auth/reset-password', payload);
+    }
 
 }
 
