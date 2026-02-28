@@ -1,9 +1,7 @@
-// Add these imports at the top
 import { FormsModule } from '@angular/forms';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
-
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { CommonModule } from '@angular/common';
 import { MenuModule } from 'primeng/menu';
@@ -11,7 +9,10 @@ import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { FileUploadModule } from 'primeng/fileupload';
-
+import { FileUpload } from 'primeng/fileupload';
+import { DashboardData } from '../service/dashboard-data';
+import { Router } from '@angular/router';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
     selector: 'app-menu-demo',
@@ -25,21 +26,27 @@ import { FileUploadModule } from 'primeng/fileupload';
         FileUploadModule,
         FormsModule,
         InputNumberModule,
-        SelectModule
+        SelectModule,
+        DialogModule
     ],
     providers: [MessageService],
     templateUrl: './menudemo.html'
 })
 export class MenuDemo {
- 
+    @ViewChild('fileUpload') fileUpload!: FileUpload;
+
     loanAmount: number | null = null;
     selectedLoanTerm: number | null = null;
     calculatedInterest: number = 0;
     dailyInterestRate: number = 0.33;
-    isFormDisabled: boolean = true; // Set to true to disable form, false to enable
+    isFormDisabled: boolean = true; 
+    loanAmountExceedsMax: boolean = false;
+    showIdDocumentError: boolean = false;
+    showSuccessDialog: boolean = false;
 
     uploadedFiles: any[] = [];
-
+    userBalance: number = 0;
+    maxLimit = 0;
     loanTermOptions = [
         { label: '7 Days', value: 7 },
         { label: '15 Days', value: 15 },
@@ -48,23 +55,18 @@ export class MenuDemo {
         { label: '60 Days', value: 60 }
     ];
 
-    constructor(private messageService: MessageService) {}
+    constructor(
+        private messageService: MessageService, 
+        private dashboardData: DashboardData,
+        private router:Router
+    ) {}
 
-    onUpload(event: any) {
-        for (const file of event.files) {
-            this.uploadedFiles.push(file);
-        }
-
-        this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
-    }
-
-    onBasicUpload() {
-        this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded with Basic Mode' });
+    ngOnInit(): void {
+        this.getUserData();
     }
 
     calculateInterest() {
         if (this.loanAmount && this.selectedLoanTerm) {
-            // Calculate: (Loan Amount * Daily Interest Rate / 100) * Number of Days
             this.calculatedInterest = (this.loanAmount * this.dailyInterestRate / 100) * this.selectedLoanTerm;
         } else {
             this.calculatedInterest = 0;
@@ -72,22 +74,150 @@ export class MenuDemo {
     }
 
     isFormValid(): boolean {
+        if (this.userBalance < 1000) {
+            return false;
+        }
+        
+        // Check if file is selected
+        const hasFile = this.fileUpload && 
+                       this.fileUpload.files && 
+                       this.fileUpload.files.length > 0;
+        
+        if (!hasFile) {
+            this.showIdDocumentError = true;
+        } else {
+            this.showIdDocumentError = false;
+        }
+        
         return this.loanAmount !== null && 
-               this.loanAmount > 0 && 
-               this.selectedLoanTerm !== null;
+           this.loanAmount >= 100 && 
+           this.loanAmount <= this.maxLimit &&
+           !this.loanAmountExceedsMax &&
+           this.selectedLoanTerm !== null &&
+           hasFile; // File is mandatory
     }
 
     submitLoanApplication() {
-        if (this.isFormValid()) {
-            this.messageService.add({ 
-                severity: 'success', 
-                summary: 'Application Submitted', 
-                detail: 'Your loan application has been submitted successfully.' 
-            });
-            // Reset form
-            this.loanAmount = null;
-            this.selectedLoanTerm = null;
-            this.calculatedInterest = 0;
+        if (!this.isFormValid()) {
+            // Show validation errors
+            if (!this.fileUpload || !this.fileUpload.files || this.fileUpload.files.length === 0) {
+                this.showIdDocumentError = true;
+                this.messageService.add({ 
+                    severity: 'warn', 
+                    summary: 'Validation Error', 
+                    detail: 'Please fill all required fields including ID Document.' 
+                });
+            }
+            return;
         }
+
+        // Get user email
+        const user = localStorage.getItem('user');
+        const userData = JSON.parse(user || '{}');
+        const userEmail = userData.data?.user?.email;
+        
+
+        // Create FormData with file and all JSON fields
+        const formData = new FormData();
+        
+        // Append file (mandatory)
+        const file = this.fileUpload.files[0] as File;
+        formData.append('file', file);
+        
+        // Append all JSON fields (all mandatory)
+        formData.append('email', userEmail);
+        formData.append('loanAmount', this.loanAmount!.toString());
+        formData.append('loanTerm', this.selectedLoanTerm!.toString());
+        formData.append('calculatedInterest', this.calculatedInterest.toString());
+
+        console.log("Submitting loan application with file and data:", {
+            email: userEmail,
+            loanAmount: this.loanAmount,
+            loanTerm: this.selectedLoanTerm,
+            calculatedInterest: this.calculatedInterest,
+            fileName: file
+        });
+
+        // Single API call with FormData containing file + JSON fields
+        this.dashboardData.submitLoanApplication(formData).subscribe({
+            next: (res) => {
+                console.log("Loan application submitted:", res);
+                 this.showSuccessDialog = true;
+                // Reset form
+                this.resetForm();
+            },
+            error: (err) => {
+                console.error("Loan application error:", err);
+                this.resetForm();
+                this.messageService.add({ 
+                    severity: 'error', 
+                    summary: 'Submission Failed', 
+                    detail: 'Failed to submit loan application. Please try again.' 
+                });
+            }
+        });
+    }
+
+    resetForm() {
+        this.loanAmount = null;
+        this.selectedLoanTerm = null;
+        this.calculatedInterest = 0;
+        this.showIdDocumentError = false;
+        if (this.fileUpload) {
+            this.fileUpload.clear();
+        }
+    }
+
+    getUserData() {
+        const user = localStorage.getItem('user');
+        const userData = JSON.parse(user || '{}');
+        const userEmail = userData.data?.user?.email;
+        
+        this.dashboardData.getUserData(userEmail).subscribe({
+            next: (res) => {
+                console.log("user data", res);
+                this.userBalance = 10000;
+                this.isFormDisabled=false;
+                this.maxLoanAmount(this.userBalance);
+                this.updateFormAccess();
+            },
+            error: (err) => {
+                console.warn('API error:', err);
+            }
+        });
+    }
+
+    maxLoanAmount(userBalance: number) {
+        this.maxLimit = userBalance * 2;
+        console.log("max limit", this.maxLimit);
+        return this.maxLimit;
+    }
+
+    updateFormAccess() {
+        this.isFormDisabled = this.userBalance < 1000;
+    }
+
+    onLoanAmountInput(event: any) {
+        if (this.loanAmount !== null && this.loanAmount !== undefined) {
+            if (this.loanAmount > this.maxLimit) {
+                this.loanAmountExceedsMax = true;
+            } else if (this.loanAmount < 100) {
+                this.loanAmountExceedsMax = false;
+            } else {
+                this.loanAmountExceedsMax = false;
+            }
+        } else {
+            this.loanAmountExceedsMax = false;
+        }
+        this.calculateInterest();
+    }
+
+       onMoveToSupport() {
+        this.showSuccessDialog = false;
+        this.router.navigate(['/app/page/support']);
+    }
+
+    closeDialog() {
+        this.showSuccessDialog = false;
     }
 }

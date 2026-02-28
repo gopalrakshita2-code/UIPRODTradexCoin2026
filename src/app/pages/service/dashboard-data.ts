@@ -114,5 +114,9 @@ constructor(private apiService: Apiservice, private http: HttpClient) {
             return this.tradeHistorySubject.value;
         }
 
+         submitLoanApplication(payload: FormData): Observable<any> {
+            return this.apiService.postFormData(`user/add/loan`, payload)
+        }
+
 
 }
