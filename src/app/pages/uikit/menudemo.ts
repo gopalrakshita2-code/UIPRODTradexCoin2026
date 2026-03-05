@@ -43,6 +43,8 @@ export class MenuDemo {
     loanAmountExceedsMax: boolean = false;
     showIdDocumentError: boolean = false;
     showSuccessDialog: boolean = false;
+    loanlimitDialog: boolean = false;
+    loanErrorDetails: string = '';
 
     uploadedFiles: any[] = [];
     userBalance: number = 0;
@@ -130,13 +132,6 @@ export class MenuDemo {
         formData.append('loanTerm', this.selectedLoanTerm!.toString());
         formData.append('calculatedInterest', this.calculatedInterest.toString());
 
-        console.log("Submitting loan application with file and data:", {
-            email: userEmail,
-            loanAmount: this.loanAmount,
-            loanTerm: this.selectedLoanTerm,
-            calculatedInterest: this.calculatedInterest,
-            fileName: file
-        });
 
         // Single API call with FormData containing file + JSON fields
         this.dashboardData.submitLoanApplication(formData).subscribe({
@@ -147,13 +142,9 @@ export class MenuDemo {
                 this.resetForm();
             },
             error: (err) => {
-                console.error("Loan application error:", err);
                 this.resetForm();
-                this.messageService.add({ 
-                    severity: 'error', 
-                    summary: 'Submission Failed', 
-                    detail: 'Failed to submit loan application. Please try again.' 
-                });
+                this.loanErrorDetails = err.error.message || `Today's loan application limit has been reached. Please try again tomorrow.`;
+                this.loanlimitDialog = true;
             }
         });
     }
@@ -212,12 +203,19 @@ export class MenuDemo {
         this.calculateInterest();
     }
 
-       onMoveToSupport() {
-        this.showSuccessDialog = false;
+    onMoveToSupport() {
+        this.dismissLoanPopups();
         this.router.navigate(['/app/page/support']);
     }
 
     closeDialog() {
+        this.dismissLoanPopups();
+    }
+
+      dismissLoanPopups(){
         this.showSuccessDialog = false;
+        this.loanlimitDialog = false;
+        this.loanErrorDetails='';
+        this.resetForm()
     }
 }
