@@ -7,8 +7,9 @@ import { OrderListModule } from 'primeng/orderlist';
 import { PickListModule } from 'primeng/picklist';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { TagModule } from 'primeng/tag';
-import { Product, ProductService } from '../service/product.service';
-import { AItrading } from '../service/aitrading';
+import { ProductService } from '../service/product.service';
+import { DashboardData } from '../service/dashboard-data';
+import { Router } from '@angular/router';
 
 interface AITradingData {
     period: string;
@@ -47,10 +48,18 @@ export class ListDemo {
         { name: 'USDT', image: 'assets/demo/images/deposit/USDT.png' },
         { name: 'SOL', image: 'assets/demo/images/deposit/SOL.png' },
         { name: 'XRP', image: 'assets/demo/images/deposit/XRP.png' }
-    ]; 
- 
+    ];
 
-    constructor() {}
+     selectedTradingPlanPopUpData: AITradingData | null = null;
+    AIPlanPopUpVisible: boolean = false;
+    UserAiTradeAmount: number | null = null;
+
+    isStartAiTradingButton: boolean = true;
+    amountError: boolean = false;
+    amountErrorMessage: string = '';
+    UserEmail: string = '';
+
+    constructor(private router: Router, private dashboardData: DashboardData) { }
 
     ngOnInit() {
         this.aitradingData = aitradingData;
@@ -65,6 +74,56 @@ export class ListDemo {
     getImagesForCard(index: number) {
         const count = this.getImageCount(index);
         return this.cryptoCoins.slice(0, count);
+    }
+
+    selectTradingPlan(data: any) {
+        this.selectedTradingPlanPopUpData = data;
+        this.AIPlanPopUpVisible = true;
+    }
+    onTryAgain() {
+        this.AIPlanPopUpVisible = false;
+        this.UserAiTradeAmount = null;
+    }
+
+    fetchUserBalance() {
+        const localData = localStorage.getItem('user');
+        const userData = JSON.parse(localData || '{}');
+        const user = userData?.data?.user || null;
+        const userBalance = user?.balance || 0;
+        this.UserEmail = user?.email || '';
+        return userBalance;
+    }
+
+    startAiTrade() {
+        const userBalance = this.fetchUserBalance();
+        if (this.UserAiTradeAmount && userBalance && this.UserAiTradeAmount <= userBalance) {
+            this.amountError = false;
+            this.amountErrorMessage = '';
+            const currentBalance = userBalance - this.UserAiTradeAmount;
+            const payload = {
+                Duration: this.selectedTradingPlanPopUpData?.period,
+                Amount: this.UserAiTradeAmount,
+                OldBalance: userBalance,
+                CurrentBalance: currentBalance,
+                DailyROI: this.selectedTradingPlanPopUpData?.daily_roi,
+                email: this.UserEmail
+            }
+            this.dashboardData.AIupdateUserBalance(payload)
+        } else {
+            this.amountError = true
+            this.amountErrorMessage = 'Insufficient Balance to Start AI Trade. Please check your balance and try again.'
+        }
+
+        this.UserAiTradeAmount = null;
+
+
+    }
+    validateAmount(value: number | null) {
+        if (value && value >= 2000) {
+            this.isStartAiTradingButton = false;
+        } else {
+            this.isStartAiTradingButton = true;
+        }
     }
 
 }
