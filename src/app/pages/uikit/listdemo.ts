@@ -17,14 +17,15 @@ interface AITradingData {
     period: string;
     amount: string;
     daily_roi: string;
+    duration: number;
 }
 
 const aitradingData: AITradingData[] = [
-    { period: '5 Day AI Trade', amount: '2,000 - 10,000 USDT', daily_roi: '0.6%' },
-    { period: '15 Day AI Trade', amount: '10,000 - 50,000 USDT', daily_roi: '0.9%' },
-    { period: '30 Day AI Trade', amount: '50,000 - 100,000 USDT', daily_roi: '1.2%' },
-    { period: '60 Day AI Trade', amount: '100,000 - 200,000 USDT', daily_roi: '1.5%' },
-    { period: '120 Day AI Trade', amount: '200,000 - 500,000 USDT', daily_roi: '2.2%' },
+    { period: '5 Days AI Trade', amount: '2,000 - 10,000 USDT', daily_roi: '0.6%', duration:5 },
+    { period: '15 Days AI Trade', amount: '10,000 - 50,000 USDT', daily_roi: '0.9%', duration:15 },
+    { period: '30 Days AI Trade', amount: '50,000 - 100,000 USDT', daily_roi: '1.2%', duration:30 },
+    { period: '60 Days AI Trade', amount: '100,000 - 200,000 USDT', daily_roi: '1.5%', duration:60 },
+    { period: '120 Days AI Trade', amount: '200,000 - 500,000 USDT', daily_roi: '2.2%', duration:120 },
 ]
 @Component({
     selector: 'app-list-demo',
@@ -54,12 +55,15 @@ export class ListDemo {
 
      selectedTradingPlanPopUpData: AITradingData | null = null;
     AIPlanPopUpVisible: boolean = false;
-    UserAiTradeAmount: number | null = null;
+    userAiEnteredAmount: number | null = null;
 
     isStartAiTradingButton: boolean = true;
     amountError: boolean = false;
     amountErrorMessage: string = '';
     UserEmail: string = '';
+
+    showAITradeSuccessDialog: boolean = false;
+    AITradeSuccessMessage: string = '';
 
     constructor(private router: Router, private dashboardData: DashboardData) { }
 
@@ -85,8 +89,7 @@ export class ListDemo {
     }
     onTryAgain() {
         this.AIPlanPopUpVisible = false;
-        this.UserAiTradeAmount = null;
-        this.amountErrorMessage = '';
+        this.resetValues();
     }
 
     fetchUserBalance() {
@@ -98,36 +101,64 @@ export class ListDemo {
         return userBalance;
     }
 
-    startAiTrade() {
+        startAiTrade() {
         const userBalance = this.fetchUserBalance();
-        if (this.UserAiTradeAmount && userBalance && this.UserAiTradeAmount <= userBalance) {
+        if (this.userAiEnteredAmount && userBalance && this.userAiEnteredAmount <= userBalance) {
             this.amountError = false;
             this.amountErrorMessage = '';
-            const currentBalance = userBalance - this.UserAiTradeAmount;
+            const currentBalance = userBalance - this.userAiEnteredAmount;
             const payload = {
-                Duration: this.selectedTradingPlanPopUpData?.period,
-                Amount: this.UserAiTradeAmount,
-                OldBalance: userBalance,
-                CurrentBalance: currentBalance,
-                DailyROI: this.selectedTradingPlanPopUpData?.daily_roi,
-                email: this.UserEmail
+                AiTradeDuration: this.selectedTradingPlanPopUpData?.period,
+                userAiEnteredAmount: this.userAiEnteredAmount,
+                userOldBalance: userBalance,
+                afterAITradetUserBalance: currentBalance,
+                dailyROI: this.selectedTradingPlanPopUpData?.daily_roi,
+                userEmail: this.UserEmail,
+                tradeDurationInDays: this.selectedTradingPlanPopUpData?.duration
             }
-            this.dashboardData.AIupdateUserBalance(payload)
+            console.log(payload);
+            
+            this.dashboardData.AITradeDetailsUpdate(payload).subscribe((response: any) => {
+                console.log(response);
+                this.AIPlanPopUpVisible = false;
+                this.resetValues();
+                this.AITradeSuccessMessage = response.message || 'AI Trade Started Successfully';
+                this.showAITradeSuccessDialog = true;
+            }, (error: any) => {
+                console.log(error);
+                this.AITradeSuccessMessage = error.message || 'Failed to Start AI Trade. Please try again.'
+            });
         } else {
             this.amountError = true
             this.amountErrorMessage = 'Insufficient Balance to Start AI Trade. Please check your balance and try again.'
+            
         }
-
-        this.UserAiTradeAmount = null;
-
-
+        this.userAiEnteredAmount = null;
     }
+
     validateAmount(value: number | null) {
         if (value && value >= 2000) {
             this.isStartAiTradingButton = false;
         } else {
             this.isStartAiTradingButton = true;
         }
+    }
+
+    tryAgain(){
+        this.showAITradeSuccessDialog = false;
+        this.AITradeSuccessMessage = '';
+        this.AIPlanPopUpVisible = true;
+    }
+
+        moveToDashboard(){
+        this.showAITradeSuccessDialog = false;
+        this.AITradeSuccessMessage = '';
+        this.router.navigate(['/app/dashboard']);
+    }
+      resetValues(){
+        this.userAiEnteredAmount = null;
+        this.amountErrorMessage ="";
+        this.amountError = false;
     }
 
 }

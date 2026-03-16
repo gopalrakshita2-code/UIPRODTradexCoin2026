@@ -128,5 +128,9 @@ constructor(private apiService: Apiservice, private http: HttpClient) {
             return this.apiService.post(`user/update-balance/ai-trade`, payload)
         }
 
+        AITradeDetailsUpdate(payload:any): Observable<any> {
+            return this.apiService.put(`ai-trade/new-trade`, payload)
+        }
+
 
 }
