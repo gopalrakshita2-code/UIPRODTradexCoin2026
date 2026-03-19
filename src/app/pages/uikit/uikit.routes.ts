@@ -14,6 +14,7 @@ import { TableDemo } from './tabledemo';
 import { OverlayDemo } from './overlaydemo';
 import { TreeDemo } from './treedemo';
 import { MenuDemo } from './menudemo';
+import { AiTradeHistory } from './ai-trade-history/ai-trade-history';
 
 export default [
     { path: 'deposit', data: { breadcrumb: 'Button' }, component: ButtonDemo },
@@ -22,6 +23,7 @@ export default [
     { path: 'market', data: { breadcrumb: 'Form Layout' }, component: FormLayoutDemo },
     { path: 'support', data: { breadcrumb: 'Input' }, component: InputDemo },
     { path: 'ai-trading', data: { breadcrumb: 'List' }, component: ListDemo },
+    { path: 'ai-trade-history', data: { breadcrumb: 'AI Trade History' }, component: AiTradeHistory },
     { path: 'media', data: { breadcrumb: 'Media' }, component: MediaDemo },
     { path: 'message', data: { breadcrumb: 'Message' }, component: MessagesDemo },
     { path: 'misc', data: { breadcrumb: 'Misc' }, component: MiscDemo },

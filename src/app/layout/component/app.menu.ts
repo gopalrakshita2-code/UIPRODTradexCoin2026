@@ -18,7 +18,7 @@ import { AppMenuitem } from './app.menuitem';
 export class AppMenu {
     model: MenuItem[] = [];
 
-    ngOnInit() {
+   ngOnInit() {
         this.model = [
             {
                 label: 'Home',
@@ -30,13 +30,12 @@ export class AppMenu {
                     { label: 'Deposit', icon: 'pi pi-fw pi-wallet', routerLink: ['/app/page/deposit'] },
                     { label: 'Withdraw', icon: 'pi pi-fw pi-arrow-down', routerLink: ['/app/page/withdraw'] },
                     { label: 'Spot Trade', icon: 'pi pi-fw pi-chart-scatter', routerLink: ['/app/page/spot-trade'] },
-                     { label: 'Trade History', icon: 'pi pi-fw pi-history', routerLink: ['/app/page/trade-history'] },
+                    { label: 'Trade History', icon: 'pi pi-fw pi-history', routerLink: ['/app/page/trade-history'] },
                     { label: 'Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/app/page/events'] },
-                    { label: 'AI Trading', icon: 'pi pi-fw pi-chart-line', routerLink: ['/app/page/ai-trading'] },
+                    // { label: 'AI Trading', icon: 'pi pi-fw pi-chart-line', routerLink: ['/app/page/ai-trading'] },
                     { label: 'Loan', icon: 'pi pi-fw pi-money-bill', routerLink: ['/app/page/loan'] },
                     { label: 'Support', icon: 'pi pi-fw pi-check-square', routerLink: ['/app/page/support'] },
                     // { label: 'Market', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/app/page/market'] },
-                    
 
                     // { label: 'Overlay', icon: 'pi pi-fw pi-clone', routerLink: ['/uikit/overlay'] },
                     // { label: 'Media', icon: 'pi pi-fw pi-image', routerLink: ['/app/page/media'] },
@@ -47,56 +46,68 @@ export class AppMenu {
                     // { label: 'Timeline', icon: 'pi pi-fw pi-calendar', routerLink: ['/uikit/timeline'] },
                     // { label: 'Misc', icon: 'pi pi-fw pi-circle', routerLink: ['/uikit/misc'] }
                 ]
+            },
+            {
+                label: 'AI Trading',
+                icon: 'pi pi-fw pi-briefcase',
+                routerLink: ['/pages'],
+                items: [
+                    {
+                        label: 'Start AI Trade',      // Sub-menu label
+                        icon: 'pi pi-fw pi-play',     // Icon to indicate starting action
+                        items: [
+                            {
+                                label: 'Trade Here',       // Final action
+                                icon: 'pi pi-fw pi-chart-line',
+                                routerLink: ['/app/page/ai-trading']
+                            },
+                            {
+                                label: 'Trade History',    // Sub-menu for history
+                                icon: 'pi pi-fw pi-clock',
+                                routerLink: ['/app/page/ai-trade-history']
+                             },
+                            // {
+                            //     label: 'Login',
+                            //     icon: 'pi pi-fw pi-sign-in',
+                            //     routerLink: ['/auth/login']
+                            // },
+                            // {
+                            //     label: 'Error',
+                            //     icon: 'pi pi-fw pi-times-circle',
+                            //     routerLink: ['/auth/error']
+                            // },
+                            // {
+                            //     label: 'Access Denied',
+                            //     icon: 'pi pi-fw pi-lock',
+                            //     routerLink: ['/auth/access']
+                            // }
+
+                        ]
+                    },
+                    // {
+                    //     label: 'Landing',
+                    //     icon: 'pi pi-fw pi-globe',
+                    //     routerLink: ['/landing']
+                    // },
+
+                    // {
+                    //     label: 'Crud',
+                    //     icon: 'pi pi-fw pi-pencil',
+                    //     routerLink: ['/pages/crud']
+                    // },
+                    // {
+                    //     label: 'Not Found',
+                    //     icon: 'pi pi-fw pi-exclamation-circle',
+                    //     routerLink: ['/pages/notfound']
+                    // },
+                    // {
+                    //     label: 'Empty',
+                    //     icon: 'pi pi-fw pi-circle-off',
+                    //     routerLink: ['/pages/empty']
+                    // }
+                ]
             }
-            // {
-            //     label: 'Pages',
-            //     icon: 'pi pi-fw pi-briefcase',
-            //     routerLink: ['/pages'],
-            //     items: [
-            //         {
-            //             label: 'Landing',
-            //             icon: 'pi pi-fw pi-globe',
-            //             routerLink: ['/landing']
-            //         },
-            //         {
-            //             label: 'Auth',
-            //             icon: 'pi pi-fw pi-user',
-            //             items: [
-            //                 {
-            //                     label: 'Login',
-            //                     icon: 'pi pi-fw pi-sign-in',
-            //                     routerLink: ['/auth/login']
-            //                 },
-            //                 {
-            //                     label: 'Error',
-            //                     icon: 'pi pi-fw pi-times-circle',
-            //                     routerLink: ['/auth/error']
-            //                 },
-            //                 {
-            //                     label: 'Access Denied',
-            //                     icon: 'pi pi-fw pi-lock',
-            //                     routerLink: ['/auth/access']
-            //                 }
-            //             ]
-            //         },
-            //         {
-            //             label: 'Crud',
-            //             icon: 'pi pi-fw pi-pencil',
-            //             routerLink: ['/pages/crud']
-            //         },
-            //         {
-            //             label: 'Not Found',
-            //             icon: 'pi pi-fw pi-exclamation-circle',
-            //             routerLink: ['/pages/notfound']
-            //         },
-            //         {
-            //             label: 'Empty',
-            //             icon: 'pi pi-fw pi-circle-off',
-            //             routerLink: ['/pages/empty']
-            //         }
-            //     ]
-            // },
-            // {
+            // ,{
             //     label: 'Hierarchy',
             //     items: [
             //         {
@@ -139,7 +150,7 @@ export class AppMenu {
             //             ]
             //         }
             //     ]
-            // },
+            // }
             // {
             //     label: 'Get Started',
             //     items: [
