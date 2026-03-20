@@ -53,6 +53,9 @@ export class Login {
                 this.isLoading = false;
                 if (response) {
                     localStorage.setItem('user', JSON.stringify(response));
+                    if (response?.data?.token) {
+                        localStorage.setItem('token', response.data?.token);
+                      }
                 }
                 this.router.navigate(['/app/dashboard']);
             },
