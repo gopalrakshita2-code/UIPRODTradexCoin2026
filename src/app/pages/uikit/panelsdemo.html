@@ -43,8 +43,8 @@
             </label>
             <input 
                 pInputText 
-                type="text" 
-                [(ngModel)]="amount"
+                type="number"
+                [(ngModel)]="userEnteramount"
                 (input)="onAmountChange()"
                 placeholder="Enter amount"
                 [class]="amountError ? 'p-invalid' : ''"
@@ -57,7 +57,6 @@
                 pInputText 
                 type="text" 
                 [(ngModel)]="expectedReturn"
-                placeholder="Expected return"
                 readonly
                 class="w-full text-sm md:text-base" />
         </div>
@@ -71,8 +70,8 @@
             type="button"
             icon="pi pi-arrow-up"
             [label]="'Up'"
-            (click)="onUpClick()"
-            [disabled]="isLoading"
+            (click)="onStartSpotTrade('up')"
+            [disabled]="isTradeButtonDisabled"
             class="p-button-success w-full sm:w-auto flex-1 sm:flex-none">
         </button>
         <button 
@@ -81,8 +80,8 @@
             type="button"
             icon="pi pi-arrow-down"
             [label]="'Down'"
-            (click)="onDownClick()"
-            [disabled]="isLoading"
+            (click)="onStartSpotTrade('down')"
+            [disabled]="isTradeButtonDisabled"
             class="p-button-danger w-full sm:w-auto flex-1 sm:flex-none">
         </button>
     </div>
@@ -125,7 +124,7 @@
             
             <div class="flex items-center justify-between pb-2 md:pb-3 border-b border-surface-200 dark:border-surface-700">
                 <span class="text-surface-600 dark:text-surface-400 font-medium text-xs md:text-sm">Amount:</span>
-                <span class="text-surface-900 dark:text-surface-0 font-semibold text-base md:text-lg">${{ tradeDetails.amount.toFixed(2) }}</span>
+                <span class="text-surface-900 dark:text-surface-0 font-semibold text-base md:text-lg">${{ tradeDetails.enteredAmount.toFixed(2) }}</span>
             </div>
             
             <div class="flex items-center justify-between pb-2 md:pb-3 border-b border-surface-200 dark:border-surface-700">

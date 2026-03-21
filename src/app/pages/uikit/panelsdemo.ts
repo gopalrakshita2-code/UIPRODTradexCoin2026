@@ -39,48 +39,49 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
     containerId: string = `tradingview_${Math.random().toString(36).substring(2, 11)}`;
     private scriptLoaded: boolean = false;
     private widgetInstance: any = null;
-    
+
     currentSymbol: string = this.symbol;
     currentInterval: string = this.interval;
-    
+
     // Card selection (default to first card - 60 seconds)
     selectedCardIndex: number = 0;
-    
+
     // Input fields
-    amount: string = '';
-    expectedReturn: string = '$0.00';
+    userEnteramount: any = '';
+    userSelectedDirection: any='';
+    expectedReturn: any = 'Expected return';
     amountError: string = '';
-    
+
     // Dialog
     showSuccessDialog: boolean = false;
     showCompletionDialog: boolean = false;
     isLoading: boolean = false;
-    
+
     // Timer properties
     timerProgress: number = 0;
     timerSeconds: number = 0;
     totalSeconds: number = 0;
     private timerInterval: any = null;
-    
+
     // Trade details for dialog
     tradeDetails: {
         symbol: string;
         coinname: string;
         timing: string;
-        amount: number;
+        enteredAmount: number;
         time: string;
         direction: 'up' | 'down';
         returnAmount: number;
     } | null = null;
-    
+
     // Track last trade for balance deduction
     lastTradeDirection: 'up' | 'down' | null = null;
     lastTradeAmount: number = 0;
-    
+
     // Real-time balance from API
     currentBalance: number = 0;
     private userDataSubscription?: Subscription;
-    
+
     coins = [
         { label: 'BTC', value: 'BINANCE:BTCUSDT' },
         { label: 'ETH', value: 'BINANCE:ETHUSDT' },
@@ -91,26 +92,33 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
         { label: 'XRP', value: 'BINANCE:XRPUSDT' },
         { label: 'DOGE', value: 'BINANCE:DOGEUSDT' }
     ];
-    
+
     returnCards = [
-        { time: '30 Seconds', return: '5.00%', min: 100, max: 4000, returnPercent: 5, seconds: 30 },
-        { time: '60 Seconds', return: '10.00%', min: 4000, max: 20000, returnPercent: 10, seconds: 60 },
+        { time: '60 Seconds', return: '10.00%', min: 1000, max: 20000, returnPercent: 10, seconds: 60 },
         { time: '90 Seconds', return: '20.00%', min: 20000, max: 60000, returnPercent: 20, seconds: 90 },
         { time: '120 Seconds', return: '30.00%', min: 60000, max: 120000, returnPercent: 30, seconds: 120 },
         { time: '180 Seconds', return: '40.00%', min: 120000, max: 180000, returnPercent: 40, seconds: 180 }
     ];
 
+    // api respone for trade
+    apiuserBlance: number = 0;
+    apiuserProfit: string = 'down';
+    apiuserEmail: string = '';
+
+    // button
+    isTradeButtonDisabled: boolean =true;
+
     constructor(
-        private router: Router, 
+        private router: Router,
         private ngZone: NgZone,
         private dashboardData: DashboardData
-    ) {}
+    ) { }
 
     ngAfterViewInit(): void {
         this.currentSymbol = this.symbol;
         this.currentInterval = this.interval;
         this.loadTradingViewScript();
-        
+
         // Subscribe to user data from API
         this.userDataSubscription = this.dashboardData.userData$.subscribe((userData) => {
             if (userData) {
@@ -118,9 +126,9 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
                 this.currentBalance = Number(dashboardData?.balance ?? 0);
             }
         });
-        
+
         // Fetch balance from API
-        this.fetchBalance();
+        this.fetchUserData();
     }
 
     private getUserEmail(): string {
@@ -129,22 +137,30 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
         try {
             const parsed = JSON.parse(storedUser);
             const user = parsed?.data?.user ?? parsed?.user ?? parsed;
+            this.apiuserEmail = user?.email || '';
             return user?.email || '';
         } catch {
             return '';
         }
     }
-
-    private fetchBalance(): void {
+// get the user data for trade
+    private fetchUserData(): void {
         const email = this.getUserEmail();
         if (email) {
-            this.dashboardData.getUserData(email).subscribe();
+            this.dashboardData.getUserData(email).subscribe({
+                next: (res) => {
+                    this.apiuserBlance = Number(res?.dashboardData?.balance ?? 0);
+                    this.apiuserProfit = res?.dashboardData?.profit ?? 'down';
+                    this.apiuserEmail = res?.dashboardData?.email ?? '';
+                    // console.log(this.apiuserBlance ,this.apiuserEmail ,this.apiuserProfit);
+                },
+                error: (err) => {
+                    console.error('Error fetching user data:', err);
+                }
+            });
         }
     }
 
-    getCurrentBalance(): number {
-        return this.currentBalance;
-    }
 
     getSymbolDisplay(symbol: string): string {
         // Convert BINANCE:BTCUSDT to BTC/USDT
@@ -164,107 +180,108 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
         return Math.round(value);
     }
 
+    // the card intial selected values with index
     selectCard(index: number): void {
         this.selectedCardIndex = index;
-        this.amount = '';
+        this.userEnteramount = '';
         this.expectedReturn = '$0.00';
         this.amountError = '';
     }
 
+    // trade button validation
+        tradeButtonValidation(): void {
+        const raw = this.userEnteramount;
+        const amountNum = Number(raw);
+
+        // disable if empty, null/undefined, 0, negative, or not a number
+        this.isTradeButtonDisabled =
+            raw === '' ||
+            raw === null ||
+            raw === undefined ||
+            Number.isNaN(amountNum) ||
+            amountNum <= 0;
+        }
+
+    // Calculate expected return based on user input and selected card
     onAmountChange(): void {
+
+        this.tradeButtonValidation();
+
+
         this.amountError = '';
-        
-        if (!this.amount || this.amount.trim() === '') {
-            this.expectedReturn = '$0.00';
-            return;
-        }
-
-        // Remove any non-numeric characters except decimal point
-        const numericValue = this.amount.replace(/[^0-9.]/g, '');
-        
-        if (!numericValue || isNaN(parseFloat(numericValue))) {
-            this.expectedReturn = '$0.00';
-            return;
-        }
-
-        const amountNum = parseFloat(numericValue);
+        const amountNum = parseFloat(this.userEnteramount);
         const selectedCard = this.returnCards[this.selectedCardIndex];
-        
+
         // Validate amount range
         if (amountNum < selectedCard.min || amountNum > selectedCard.max) {
             this.amountError = `Amount must be between ${selectedCard.min.toLocaleString()} and ${selectedCard.max.toLocaleString()}`;
             this.expectedReturn = '$0.00';
             return;
         }
-
-        
-        const dollarAmount = amountNum;
-        const returnAmount = (dollarAmount * selectedCard.returnPercent) / 100;
+        const userEnteredAmount = amountNum;
+        const returnAmount = (userEnteredAmount * selectedCard.returnPercent) / 100;
         // Show only the return amount, not the total
         this.expectedReturn = `$${returnAmount.toFixed(2)}`;
         this.amountError = '';
+
+        // console.log(userEnteredAmount, returnAmount);
+
     }
 
-    checkBalanceAndTrade(direction: 'up' | 'down'): void {
+    checkBalanceAndTrade(direction: any): void {
+
         // Fetch fresh balance from API before trade
-        this.fetchBalance();
-        
-        // Use current balance from subscription
-        const currentBalance = this.getCurrentBalance();
-        
+        this.fetchUserData();
+
+        const userCurrentBalance = this.apiuserBlance;
+
         // If no balance, clear both fields
-        if (!currentBalance || currentBalance === 0) {
-            this.amount = '';
+        if (!userCurrentBalance || userCurrentBalance === 0) {
+            this.userEnteramount = '';
             this.expectedReturn = '';
             this.amountError = 'insufficient balance add money to your account';
             return;
         }
 
-        if (!this.amount || this.amount.trim() === '') {
-            this.amountError = 'Please enter an amount';
-            return;
-        }
 
         // Remove any non-numeric characters except decimal point
-        const numericValue = this.amount.replace(/[^0-9.]/g, '');
-        
-        if (!numericValue || isNaN(parseFloat(numericValue))) {
-            this.amountError = 'Please enter a valid amount';
-            return;
-        }
-
-        const amountNum = parseFloat(numericValue);
+        const numericValue = this.userEnteramount;
+        const enteredAmountNumber = parseFloat(numericValue);
         const selectedCard = this.returnCards[this.selectedCardIndex];
 
         // Validate amount is within the selected card's range
-        if (amountNum < selectedCard.min || amountNum > selectedCard.max) {
+        if (enteredAmountNumber < selectedCard.min || enteredAmountNumber > selectedCard.max) {
             this.amountError = `Amount must be between ${selectedCard.min.toLocaleString()} and ${selectedCard.max.toLocaleString()}`;
             return;
         }
 
         // Check if balance is sufficient for the trade
         // Balance should be >= minimum required for the card AND >= entered amount
-        if (currentBalance >= selectedCard.min && currentBalance >= amountNum) {
+        if (userCurrentBalance >= selectedCard.min && userCurrentBalance >= enteredAmountNumber) {
             // Show loader
             this.isLoading = true;
-            
+
             // Calculate trade details
-            const dollarAmount = amountNum;
+            const dollarAmount = enteredAmountNumber;
             const returnAmount = (dollarAmount * selectedCard.returnPercent) / 100;
+            console.log(returnAmount);
             
+
             // Store trade information
-            this.lastTradeDirection = direction;
-            this.lastTradeAmount = amountNum;
-            
+            this.lastTradeAmount = enteredAmountNumber;
+
             this.tradeDetails = {
                 symbol: this.getSymbolDisplay(this.currentSymbol),
-                amount: dollarAmount,
+                enteredAmount: dollarAmount,
                 time: selectedCard.time,
                 direction: direction,
                 returnAmount: returnAmount,
                 coinname: this.getCoinName(this.currentSymbol),
                 timing: selectedCard.time
             };
+
+            // console.log("trade data", this.tradeDetails , "entered value" ,enteredAmountNumber , "return amount",returnAmount ,"user balance" ,userCurrentBalance);
+
             // Simulate loading delay (you can remove this if not needed)
             setTimeout(() => {
                 this.isLoading = false;
@@ -272,10 +289,10 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
                 this.startTimer(selectedCard.seconds);
                 this.amountError = '';
             }, 500);
-        } else if (currentBalance < selectedCard.min) {
-            this.amountError = `Insufficient balance. Minimum required: ${selectedCard.min.toLocaleString()}, Your balance: ${currentBalance.toLocaleString()}`;
-        } else if (currentBalance < amountNum) {
-            this.amountError = `Insufficient balance. Required: ${amountNum.toLocaleString()}, Your balance: ${currentBalance.toLocaleString()}`;
+        } else if (userCurrentBalance < selectedCard.min) {
+            this.amountError = `Insufficient balance. Minimum required: ${selectedCard.min.toLocaleString()}, Your balance: ${userCurrentBalance.toLocaleString()}`;
+        } else if (userCurrentBalance < enteredAmountNumber) {
+            this.amountError = `Insufficient balance. Required: ${enteredAmountNumber.toLocaleString()}, Your balance: ${userCurrentBalance.toLocaleString()}`;
         }
     }
 
@@ -283,18 +300,18 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
         this.totalSeconds = totalSeconds;
         this.timerSeconds = totalSeconds;
         this.timerProgress = 0;
-        
+
         // Clear any existing timer
         if (this.timerInterval) {
             clearInterval(this.timerInterval);
         }
-        
+
         this.ngZone.runOutsideAngular(() => {
             this.timerInterval = setInterval(() => {
                 this.ngZone.run(() => {
                     this.timerSeconds--;
                     this.timerProgress = ((totalSeconds - this.timerSeconds) / totalSeconds) * 100;
-                    
+
                     if (this.timerSeconds <= 0) {
                         this.timerSeconds = 0;
                         this.timerProgress = 100;
@@ -319,12 +336,11 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
         this.showCompletionDialog = true;
     }
 
-    onUpClick(): void {
-        this.checkBalanceAndTrade('up');
-    }
-
-    onDownClick(): void {
-        this.checkBalanceAndTrade('down');
+    // trade start here
+    onStartSpotTrade(data: any) {    
+        const direction = data == 'down' ? 'down' : 'up';
+        this.userSelectedDirection = direction;
+        this.checkBalanceAndTrade(direction);
     }
 
     closeSuccessDialog(): void {
@@ -333,15 +349,15 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
             clearInterval(this.timerInterval);
             this.timerInterval = null;
         }
-        
+
         this.showSuccessDialog = false;
         // Don't navigate here anymore - navigation happens in onMoveToDashboard
         // Reset fields
-        this.amount = '';
+        this.userEnteramount = '';
         this.expectedReturn = '';
         this.amountError = '';
         // Reset trade tracking
-        this.lastTradeDirection = null;
+        this.userSelectedDirection = null;
         this.lastTradeAmount = 0;
         this.tradeDetails = null;
         this.timerProgress = 0;
@@ -352,11 +368,11 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
         // Close completion dialog
         this.showCompletionDialog = false;
         // Reset fields but stay on same page
-        this.amount = '';
+        this.userEnteramount = '';
         this.expectedReturn = '';
         this.amountError = '';
         // Reset trade tracking
-        this.lastTradeDirection = null;
+        this.userSelectedDirection = null;
         this.lastTradeAmount = 0;
         this.tradeDetails = null;
         this.timerProgress = 0;
@@ -374,11 +390,11 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
         // Navigate to dashboard
         this.router.navigate(['/app/dashboard']);
         // Reset all fields
-        this.amount = '';
+        this.userEnteramount = '';
         this.expectedReturn = '';
         this.amountError = '';
         // Reset trade tracking
-        this.lastTradeDirection = null;
+        this.userSelectedDirection = null;
         this.lastTradeAmount = 0;
         this.tradeDetails = null;
         this.timerProgress = 0;
@@ -390,46 +406,39 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
         }
     }
 
-    private getUserProfit(): 'up' | 'down' {
-        const storedUser = localStorage.getItem('user');
-        if (!storedUser) return 'down'; // Default to 'down' if not found
-        try {
-            const parsed = JSON.parse(storedUser);
-            const user = parsed?.data?.user ?? parsed?.user ?? parsed;
-            const profit = user?.profit || user?.profittype || 'down';
-            return profit === 'up' ? 'up' : 'down';
-        } catch {
-            return 'down'; // Default to 'down' on error
-        }
-    }
 
     private updateBalanceViaAPI(): void {
-        const email = this.getUserEmail();
+        const email = this.apiuserEmail;;
         if (!email || !this.tradeDetails) return;
-    
+
         // Get current balance from API before calculating
-        const currentBalance = this.currentBalance;
-        const tradeAmount = Number(this.tradeDetails.amount || 0);
+        const currentBalance = this.apiuserBlance;
+        const tradeAmount = Number(this.tradeDetails.enteredAmount || 0);
         const returnAmount = Number(this.tradeDetails.returnAmount || 0);
-        const direction = this.lastTradeDirection || 'down';
-        
-       
+        const direction = this.userSelectedDirection;
+
+
         // Get profit type from localStorage user data
-    const profitType = this.getUserProfit();
-    const newBalance = profitType === 'up' ? currentBalance + returnAmount : Math.max(0, currentBalance - tradeAmount);
+        const profitType = this.apiuserProfit;
+        const newBalance = profitType === 'up' ? currentBalance + returnAmount : Math.max(0, currentBalance - returnAmount)
+
+
+        console.log("entered value" ,tradeAmount , "return amount",returnAmount ,"user balance" ,currentBalance , "profitype" , profitType , 'AFTER Profit balance' ,newBalance);
+
+        
         // Get coin name from symbol (e.g., "BINANCE:BTCUSDT" -> "BTC")
         const coinname = this.getCoinName(this.currentSymbol);
-        
+
         // Get timing from selected card
         const selectedCard = this.returnCards[this.selectedCardIndex];
         const timing = selectedCard.time;
-        
+
         // Get current date
         const date = new Date().toISOString();
-        const payload={
+        const payload = {
             email: email,
             balance: newBalance,
-            todayPnl:profitType === 'up' ? returnAmount : -returnAmount,
+            todayPnl: profitType === 'up' ? returnAmount : -returnAmount,
             todayGain: profitType === 'up' ? returnAmount : -returnAmount,
             coinname: coinname,
             timing: timing,
@@ -437,9 +446,9 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
             date: date,
             createdAt: new Date().toISOString()
         }
-        console.log(payload);
-        
-    
+        // console.log(payload);
+
+
         this.dashboardData.updateUserBalanceAndProfit(payload).subscribe({
             next: (res) => {
                 console.log('Trade data updated successfully:', res);
@@ -450,27 +459,25 @@ export class PanelsDemo implements AfterViewInit, OnDestroy {
         });
     }
 
-
-
     // Helper method to extract coin name from symbol
-private getCoinName(symbol: string): string {
-    // Convert "BINANCE:BTCUSDT" to "BTC"
-    const parts = symbol.split(':');
-    if (parts.length > 1) {
-        const pair = parts[1];
-        if (pair.includes('USDT')) {
-            return pair.replace('USDT', '');
+    private getCoinName(symbol: string): string {
+        // Convert "BINANCE:BTCUSDT" to "BTC"
+        const parts = symbol.split(':');
+        if (parts.length > 1) {
+            const pair = parts[1];
+            if (pair.includes('USDT')) {
+                return pair.replace('USDT', '');
+            }
+            return pair;
         }
-        return pair;
+        return symbol;
     }
-    return symbol;
-}
 
     changeSymbol(symbol: string): void {
         if (this.currentSymbol === symbol) {
             return; // Already selected
         }
-        
+
         this.currentSymbol = symbol;
         this.initWidget();
     }
@@ -479,7 +486,7 @@ private getCoinName(symbol: string): string {
         if (this.currentInterval === interval) {
             return; // Already selected
         }
-        
+
         this.currentInterval = interval;
         this.initWidget();
     }
@@ -542,19 +549,18 @@ private getCoinName(symbol: string): string {
         }, 100);
     }
 
-
     ngOnDestroy(): void {
         // Clear timer if still running
         if (this.timerInterval) {
             clearInterval(this.timerInterval);
             this.timerInterval = null;
         }
-        
+
         // Unsubscribe from user data
         if (this.userDataSubscription) {
             this.userDataSubscription.unsubscribe();
         }
-        
+
         // Clean up widget instance if needed
         if (this.widgetInstance) {
             const container = document.getElementById(this.containerId);
