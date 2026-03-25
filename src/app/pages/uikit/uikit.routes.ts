@@ -15,9 +15,11 @@ import { OverlayDemo } from './overlaydemo';
 import { TreeDemo } from './treedemo';
 import { MenuDemo } from './menudemo';
 import { AiTradeHistory } from './ai-trade-history/ai-trade-history';
+import { DepositHistory } from './deposit-history/deposit-history';
 
 export default [
     { path: 'deposit', data: { breadcrumb: 'Button' }, component: ButtonDemo },
+    { path: 'deposit-history', data: { breadcrumb: 'Button' }, component: DepositHistory },
     { path: 'charts', data: { breadcrumb: 'Charts' }, component: ChartDemo },
     { path: 'file', data: { breadcrumb: 'File' }, component: FileDemo },
     { path: 'market', data: { breadcrumb: 'Form Layout' }, component: FormLayoutDemo },
