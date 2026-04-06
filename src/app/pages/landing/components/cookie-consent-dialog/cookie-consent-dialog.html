@@ -1,0 +1,139 @@
+<!-- Drawer: width caps at ~400px but never exceeds viewport -->
+<p-drawer [(visible)]="visibleDrawer" [fullScreen]="true" [modal]="true" [blockScroll]="true"
+    appendTo="body" header="Cookie settings">
+    <ng-container *ngIf="drawerType === 'policy'">
+        <div class="max-h-[min(auto,32rem)] overflow-y-auto text-sm sm:text-base leading-relaxed break-words space-y-4">
+            <h3 class="text-lg sm:text-xl font-semibold break-words">Cookie Policy</h3>
+            <p class="text-surface-600 dark:text-surface-400">
+                How we use cookies and similar technologies on our websites and apps
+            </p>
+
+            <ol class="list-decimal pl-5 space-y-4 marker:font-semibold">
+                <li>
+                    <span class="font-medium">What cookies are</span><br />
+                    Cookies are small text files stored on your device. Similar technologies (e.g. pixels, local
+                    storage) help us run the service securely, remember settings, and understand how the product is
+                    used.
+                </li>
+                <li>
+                    <span class="font-medium">What we use them for</span><br />
+                    We use strictly necessary cookies so the service works (e.g. login, security, preferences). Where
+                    allowed, we may use performance, functional, and advertising or measurement cookies to improve the
+                    experience and measure campaigns.
+                </li>
+                <li>
+                    <span class="font-medium">How long they last</span><br />
+                    Session cookies are removed when you close the browser. Persistent cookies stay for a set period
+                    (e.g. days or months) depending on their purpose.
+                </li>
+                <li>
+                    <span class="font-medium">Your choices</span><br />
+                    You can control non-essential cookies through our cookie preferences where we offer them, and
+                    through your browser or device settings. Blocking some cookies may limit certain features.
+                </li>
+                <li>
+                    <span class="font-medium">Changes to this policy</span><br />
+                    We may update this Cookie Policy from time to time. The updated version will apply when posted;
+                    check this page periodically.
+                </li>
+            </ol>
+        </div>
+    </ng-container>
+
+    <ng-container *ngIf="drawerType === 'customize'">
+        <div class="max-h-[min(auto,32rem)] overflow-y-auto text-sm sm:text-base leading-relaxed break-words space-y-5">
+            <h3 class="text-lg sm:text-xl font-semibold break-words">Cookie consent manager</h3>
+
+            <p>
+                When you visit our website, we may store cookies on your browser for your security and to help us better
+                understand user behavior and inform us about which parts of our website you have visited. The
+                information does not usually directly identify you, but it can give you a safer and more personalized
+                web experience. Because we respect your right to privacy, you can choose not to allow some types of
+                cookies. Blocking some types of cookies may impact your experience on the site.
+            </p>
+
+            <p>
+                See our
+                <span class="font-semibold text-primary hover:underline cursor-pointer" (click)="openDrawer('policy')">
+                    Cookie Policy
+                </span>
+                for more detail.
+            </p>
+
+            <h4 class="text-base font-semibold border-b border-surface-200 dark:border-surface-700 pb-2">
+                Manage cookie preferences
+            </h4>
+
+            <div class="space-y-2">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <span class="font-medium">Strictly Necessary Cookies</span>
+                    <span class="text-xs font-semibold uppercase tracking-wide text-primary">Always active</span>
+                </div>
+                <p class="text-surface-600 dark:text-surface-400 text-sm leading-relaxed">
+                    These cookies are necessary for the website to function and cannot be switched off in our systems.
+                    They are usually only set in response to actions made by you which amount to a request for services,
+                    such as setting your privacy preferences, logging in or filling in forms. These also include cookies
+                    we may rely on for fraud prevention. You can set your browser to block or alert you about these
+                    cookies, but some parts of the site will not then work.
+                </p>
+            </div>
+
+            <div class="space-y-2">
+                <span class="font-medium block">Functional Cookies</span>
+                <p class="text-surface-600 dark:text-surface-400 text-sm leading-relaxed">
+                    These cookies enable us to remember choices you have made in the past in order to provide enhanced
+                    functionality and personalisation (e.g. what language you prefer). If you do not allow these cookies
+                    then some or all of these services may not function properly.
+                </p>
+            </div>
+
+            <div class="space-y-2">
+                <span class="font-medium block">Targeting Cookies</span>
+                <p class="text-surface-600 dark:text-surface-400 text-sm leading-relaxed">
+                    These cookies may be set through our site by our advertising partners. They may be used by those
+                    companies to build a profile of your interests and show you relevant ads on other sites. They do not
+                    store directly personal information, but are based on uniquely identifying your browser and internet
+                    device. If you do not allow these cookies, you will experience less targeted advertising.
+                </p>
+            </div>
+
+            <div class="space-y-2">
+                <span class="font-medium block">Performance Cookies</span>
+                <p class="text-surface-600 dark:text-surface-400 text-sm leading-relaxed">
+                    These cookies allow us to count visits and traffic sources so we can measure and improve the
+                    performance of our site. They help us to know which pages are the most and least popular and see how
+                    visitors move around the site. If you do not allow these cookies we will not know when you have
+                    visited our site, and will not be able to monitor its performance.
+                </p>
+            </div>
+        </div>
+    </ng-container>
+
+</p-drawer>
+
+
+<!-- Cookie Dialog: fluid width + PrimeNG breakpoint for very small screens -->
+<p-dialog header="Cookie Settings" [(visible)]="visible" [modal]="true" [closable]="true" [dismissableMask]="false"
+    (onHide)="onClose()" [style]="{ width: 'min(28.125rem, calc(100vw - 2rem))' }" [breakpoints]="{ '575px': '95vw' }">
+    <p class="mb-3 text-sm sm:text-base leading-relaxed break-words">
+        See our
+        <span class="font-bold text-blue-600 hover:underline" (click)="openDrawer('policy')">
+            Cookie Policy
+        </span>
+        for more information on how we process your personal data.
+        To customize your settings,
+        <span class="font-bold text-blue-600 hover:underline" (click)="openDrawer('customize')">
+            Customize Cookies
+        </span>.
+    </p>
+
+    <div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <button pButton type="button" label="Reject" severity="secondary"  class="w-full sm:w-auto min-h-11 justify-center"
+            (click)="reject()">
+        </button>
+
+        <button pButton type="button" label="Accept" severity="primary" class="w-full sm:w-auto min-h-11 justify-center"
+            (click)="accept()">
+        </button>
+    </div>
+</p-dialog>
