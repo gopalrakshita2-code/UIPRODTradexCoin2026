@@ -38,8 +38,8 @@ export class ButtonDemo implements OnInit {
     selectedCoinAddress:string = '';
     selectedCoinImage:string = '';
     selectedCoins:any[] = [
-        { address: "bc1q06shnswlkwzf3e2zyn0j0cqm0anfltjf752d98", name: "bitcoin", code: "btc", scan: "assets/demo/images/scan/BTC.png" },
-        { address: "0x5098aA32b08A5908d2e0f4cCB407aF6910A8494f", name: "ethereum", code: "eth", scan: "assets/demo/images/scan/ETH.png" },
+        { address: "bc1q0m6r3u73ft3m5km9gd0p3rpsfsrek2098mkfqh", name: "bitcoin", code: "btc", scan: "assets/demo/images/scan/BTC.png" },
+        { address: "0xDb02BCac9abE086f889C91E754DB0DdC7f0B236E", name: "ethereum", code: "eth", scan: "assets/demo/images/scan/ETH.png" },
         { address: "0x5098aA32b08A5908d2e0f4cCB407aF6910A8494f", name: "tetherBEP20", code: "usdt(bep20)", scan: "assets/demo/images/scan/usdtBep20.png" },
         { address: "TJ3iZrJhW3DRCuJvTAvx8votAAAzBs8R7D", name: "tetherTRC20", code: "usdt(trc20)", scan: "assets/demo/images/scan/usdtTrc20.png" },
         { address: "0x5098aA32b08A5908d2e0f4cCB407aF6910A8494f", name: "binancecoin", code: "bnb", scan: "assets/demo/images/scan/BNB.png" },
